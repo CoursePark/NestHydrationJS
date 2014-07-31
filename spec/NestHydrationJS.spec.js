@@ -1,0 +1,2 @@
+NestHydrationJS = require('../lib/Resource');
+

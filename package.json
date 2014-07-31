@@ -1,0 +1,24 @@
+{
+  "name": "NestHydrationJS",
+  "version": "0.1.0",
+  "description": "Provides nested objects from tabular data.",
+  "keywords": [
+    "Hydration",
+    "Tabular Data",
+    "Arrays",
+    "Table",
+    "Object",
+    "Nested"
+  ],
+  "license": "Talk to the Legal Department",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "lodash": "2.4.1",
+    "q": "1.0.1"
+  },
+  "devDependencies": {},
+  "author": "Bluedrop Peformance Learning"
+}
