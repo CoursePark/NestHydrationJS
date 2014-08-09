@@ -3,6 +3,91 @@
 var NestHydrationJS = require('../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
+	describe('identityMappingFilter method', function () {
+		describe('simple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					'a': null
+				};
+				result = NestHydrationJS.identityMappingFilter(mapping);
+			});
+			
+			it('should return null', function () {
+				var expected = {
+					'a': null
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					'a': null,
+					'b': null
+				};
+				result = NestHydrationJS.identityMappingFilter(mapping);
+			});
+			
+			it('should return null', function () {
+				var expected = {
+					'a': null
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					'a': null,
+					'b': null
+				}];
+				result = NestHydrationJS.identityMappingFilter(mapping);
+			});
+			
+			it('should return null', function () {
+				var expected = [{
+					'a': null
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping complex', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					'a': null,
+					'b': null,
+					'c': {
+						'd': null
+					},
+					'e': [{
+						'f': null,
+						'g': null
+					}]
+				}];
+				result = NestHydrationJS.identityMappingFilter(mapping);
+			});
+			
+			it('should return null', function () {
+				var expected = [{
+					'a': null,
+					'c': {
+						'd': null
+					},
+					'e': [{
+						'f': null
+					}]
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+	});
 	describe('propertyMappingFromColumnHints method', function () {
 		describe('passed empty as columnList', function () {
 			var result;
