@@ -111,15 +111,15 @@ NestHydrationJS.identityMappingFilter = function (mapping) {
 	
 	// assumes the first entry is the identity entry
 	firstProperty = propertyList.shift();
-	if (mapping[firstProperty] !== null) {
-		throw 'first property must be an identity property and not an object nor array';
+	if (typeof mapping[firstProperty] !== 'string') {
+		throw 'first property must be an identity property string, not an object nor an array';
 	}
-	result[firstProperty] = null;
+	result[firstProperty] = mapping[firstProperty];
 	
 	// filter the rest or dive
 	for (i = 0; i < propertyList.length; i++) {
 		property = propertyList[i];
-		if (mapping[property] === null) {
+		if (typeof mapping[property] === 'string') {
 			continue;
 		}
 		result[property] = NestHydrationJS.identityMappingFilter(mapping[property]);
@@ -132,7 +132,7 @@ NestHydrationJS.identityMappingFilter = function (mapping) {
  * for efficient iteration.
  */
 NestHydrationJS.populatePropertyListMap = function (mapping) {
-	var propertyListMap, propertyList, identityColumn, i, property, column;
+	var propertyListMap, propertyList, identityColumn, i, property, column, childPLM, childIdentityColumn;
 	
 	if (_.isArray(mapping)) {
 		if (mapping.length !== 1) {
@@ -142,7 +142,7 @@ NestHydrationJS.populatePropertyListMap = function (mapping) {
 		return NestHydrationJS.populatePropertyListMap(mapping[0]);
 	}
 	
-	propertyListMap = [];
+	propertyListMap = {};
 	
 	propertyList = _.keys(mapping);
 	
@@ -157,14 +157,28 @@ NestHydrationJS.populatePropertyListMap = function (mapping) {
 		
 		column = mapping[property];
 		
-		if (_.isArray(column)) {
-// working right here, need to merge the following into propertyListMap
-			// NestHydrationJS.populatePropertyListMap(column);
-		} else {
+		if (typeof column === 'string') {
 			if (typeof propertyListMap[identityColumn] === 'undefined') {
 				propertyListMap[identityColumn] = [];
 			}
 			propertyListMap[identityColumn].push(property);
+		} else {
+			// OPTIMIZATION IDEA: This code progressivily copies the contents
+			// of childPLM outwards for each depth of recursion, could instead
+			// pass in flat destination structure and operate directly on it.
+			// This would be a fairly minor optimization because this code is
+			// only executed once per query and the depth of nesting, the
+			// number of columns nested are seldom significant
+			childPLM = NestHydrationJS.populatePropertyListMap(column);
+			
+			for (childIdentityColumn in childPLM) {
+				if (typeof propertyListMap[childIdentityColumn] === 'undefined') {
+					propertyListMap[childIdentityColumn] = [];
+				}
+				propertyListMap[childIdentityColumn] = propertyListMap[childIdentityColumn]
+					.concat(childPLM[childIdentityColumn])
+				;
+			}
 		}
 	}
 	
@@ -202,7 +216,10 @@ NestHydrationJS.propertyMappingFromColumnHints = function (columnList) {
 					pointer[prop] = {};
 				}
 				if (typeof pointer[prop][nav] === 'undefined') {
-					pointer[prop][nav] = null;
+					pointer[prop][nav] = j === (navList.length - 1)
+						? column // is leaf node, store full column string
+						: null // iteration will replace with object or array
+					;
 				}
 				pointer = pointer[prop];
 				prop = nav;

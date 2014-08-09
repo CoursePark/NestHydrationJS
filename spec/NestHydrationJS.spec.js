@@ -8,14 +8,14 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					'a': null
+					'a': 'a'
 				};
 				result = NestHydrationJS.identityMappingFilter(mapping);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = {
-					'a': null
+					'a': 'a'
 				};
 				expect(result).toEqual(expected);
 			});
@@ -25,15 +25,15 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					'a': null,
-					'b': null
+					'a': 'a',
+					'b': 'b'
 				};
 				result = NestHydrationJS.identityMappingFilter(mapping);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = {
-					'a': null
+					'a': 'a'
 				};
 				expect(result).toEqual(expected);
 			});
@@ -43,15 +43,15 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = [{
-					'a': null,
-					'b': null
+					'a': '_a',
+					'b': '_b'
 				}];
 				result = NestHydrationJS.identityMappingFilter(mapping);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = [{
-					'a': null
+					'a': '_a'
 				}];
 				expect(result).toEqual(expected);
 			});
@@ -61,33 +61,116 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = [{
-					'a': null,
-					'b': null,
+					'a': '_a',
+					'b': '_b',
 					'c': {
-						'd': null
+						'd': '_c_d'
 					},
 					'e': [{
-						'f': null,
-						'g': null
+						'f': '_e__f',
+						'g': '_e__g'
 					}]
 				}];
 				result = NestHydrationJS.identityMappingFilter(mapping);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = [{
-					'a': null,
+					'a': '_a',
 					'c': {
-						'd': null
+						'd': '_c_d'
 					},
 					'e': [{
-						'f': null
+						'f': '_e__f'
 					}]
 				}];
 				expect(result).toEqual(expected);
 			});
 		});
 	});
+	
+	describe('populatePropertyListMap method', function () {
+		describe('simple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					'a': 'a'
+				};
+				result = NestHydrationJS.populatePropertyListMap(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					'a': ['a']
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					'a': 'a',
+					'b': 'b'
+				};
+				result = NestHydrationJS.populatePropertyListMap(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					'a': ['a', 'b']
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					'a': '_a',
+					'b': '_b'
+				}];
+				result = NestHydrationJS.populatePropertyListMap(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					'_a': ['a', 'b']
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping complex', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					'a': '_a',
+					'b': '_b',
+					'c': {
+						'd': '_c_d'
+					},
+					'e': [{
+						'f': '_e__f',
+						'g': '_e__g'
+					}]
+				}];
+				result = NestHydrationJS.populatePropertyListMap(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					'_a': ['a', 'b'],
+					'_c_d': ['d'],
+					'_e__f': ['f', 'g']
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+	});
+	
 	describe('propertyMappingFromColumnHints method', function () {
 		describe('passed empty as columnList', function () {
 			var result;
@@ -96,7 +179,7 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				expect(result).toBeNull();
 			});
 		});
@@ -110,9 +193,9 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = {
-					a: null
+					a: 'a'
 				};
 				expect(result).toEqual(expected);
 			});
@@ -128,10 +211,10 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = {
-					a: null,
-					b: null
+					a: 'a',
+					b: 'b'
 				};
 				expect(result).toEqual(expected);
 			});
@@ -146,9 +229,9 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = [{
-					a: null
+					a: '_a'
 				}];
 				expect(result).toEqual(expected);
 			});
@@ -164,10 +247,10 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = [{
-					a: null,
-					b: null
+					a: '_a',
+					b: '_b'
 				}];
 				expect(result).toEqual(expected);
 			});
@@ -183,11 +266,11 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = {
-					a: null,
+					a: 'a',
 					b: {
-						c: null
+						c: 'b_c'
 					}
 				};
 				expect(result).toEqual(expected);
@@ -207,15 +290,15 @@ describe('NestHydrationJS', function () {
 				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
 			});
 			
-			it('should return null', function () {
+			it('should match expected structure', function () {
 				var expected = [{
-					id: null,
+					id: '_id',
 					a: {
-						id: null,
-						b: null,
+						id: '_a_id',
+						b: '_a_b',
 						c: [{
-							id: null,
-							d: null
+							id: '_a_c__id',
+							d: '_a_c__d'
 						}]
 					}
 				}];
