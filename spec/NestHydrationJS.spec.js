@@ -3,14 +3,14 @@
 var NestHydrationJS = require('../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
-	describe('identityMappingFilter method', function () {
+	describe('identityMapping method', function () {
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
 					'a': 'a'
 				};
-				result = NestHydrationJS.identityMappingFilter(mapping);
+				result = NestHydrationJS.identityMapping(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -28,7 +28,7 @@ describe('NestHydrationJS', function () {
 					'a': 'a',
 					'b': 'b'
 				};
-				result = NestHydrationJS.identityMappingFilter(mapping);
+				result = NestHydrationJS.identityMapping(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -46,7 +46,7 @@ describe('NestHydrationJS', function () {
 					'a': '_a',
 					'b': '_b'
 				}];
-				result = NestHydrationJS.identityMappingFilter(mapping);
+				result = NestHydrationJS.identityMapping(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -71,7 +71,7 @@ describe('NestHydrationJS', function () {
 						'g': '_e__g'
 					}]
 				}];
-				result = NestHydrationJS.identityMappingFilter(mapping);
+				result = NestHydrationJS.identityMapping(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -89,14 +89,14 @@ describe('NestHydrationJS', function () {
 		});
 	});
 	
-	describe('populatePropertyListMap method', function () {
+	describe('identityColumnToPropertyList method', function () {
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
 					'a': 'a'
 				};
-				result = NestHydrationJS.populatePropertyListMap(mapping);
+				result = NestHydrationJS.identityColumnToPropertyList(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -114,7 +114,7 @@ describe('NestHydrationJS', function () {
 					'a': 'a',
 					'b': 'b'
 				};
-				result = NestHydrationJS.populatePropertyListMap(mapping);
+				result = NestHydrationJS.identityColumnToPropertyList(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -132,7 +132,7 @@ describe('NestHydrationJS', function () {
 					'a': '_a',
 					'b': '_b'
 				}];
-				result = NestHydrationJS.populatePropertyListMap(mapping);
+				result = NestHydrationJS.identityColumnToPropertyList(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -157,7 +157,7 @@ describe('NestHydrationJS', function () {
 						'g': '_e__g'
 					}]
 				}];
-				result = NestHydrationJS.populatePropertyListMap(mapping);
+				result = NestHydrationJS.identityColumnToPropertyList(mapping);
 			});
 			
 			it('should match expected structure', function () {

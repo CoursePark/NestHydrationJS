@@ -7,7 +7,7 @@ _ = require('lodash');
 NestHydrationJS = {};
 
 NestHydrationJS.nest = function (table, propertyMapping) {
-	var listOnEmpty, identityMapping, propertyListMap;
+	var listOnEmpty, identityMapping, idColToPropList, i;
 	
 	listOnEmpty = false;
 	
@@ -69,27 +69,103 @@ NestHydrationJS.nest = function (table, propertyMapping) {
 	
 	// precalculate list of contained properties for each possible
 	// structure, indexed by identity columns
-	propertyListMap = NestHydrationJS.populatePropertyListMap(propertyMapping);
+	idColToPropList = NestHydrationJS.identityColumnToPropertyList(propertyMapping);
 	
 	// default is either an empty list or null structure
-		// $structure = is_integer(key($propertyMapping)) ? array() : null;
+	structure = _.isArray(propertyMapping) ? [] : null;
 	
 	// initialize map for keys of identity columns to the nested structures
-		// $mapByIndentityKeyToStruct = array();
+	mapByIndentityKeyToStruct = [];
 	
 	// row by row build up the data structure using the recursive
-	// populate function.
-		// foreach ($table as $row) {
-		// 	static::populateStructure($structure, $row, $resultType, $propertyMapping, $identityMapping, $propertyListMap, $mapByIndentityKeyToStruct);
-		// }
+	// populate function
+	for (i = 0; i < table.length; i++) {
+		NestHydrationJS.populateStructure(structure, table[i], propertyMapping, identityMapping, idColToPropList, mapByIndentityKeyToStruct);
+	}
 	
-		// return $structure;
+	return structure;
+};
+
+/* Populate structure with row data based propertyMapping with useful hints
+ * coming from diff, identityMapping and idColToPropList
+ */
+NestHydrationJS.populateStructure = function (structure, row, propertyMapping, identityMapping, idColToPropList, mapByIndentityKeyToStruct) {
+	var propertyList, identityColumn, pos, i, property;
+	
+	if (_.isArray(identityMapping)) {
+		// list of nested structures
+		
+		// identity column of the array sub structure is the first property
+		propertyList = _.keys(identityMapping[0]);
+		identityColumn = identityMapping[0][propertyList[0]];
+		
+		if (row[identityColumn] === null) {
+			// structure is empty
+			structure = []; // OPTIMIZATION IDEA: I think this line is removable, [] is by places that call populateStructure
+			return;
+		}
+		
+		i = 'i' + row[identityColumn];
+		if (typeof mapByIndentityKeyToStruct[i] === 'undefined') {
+			structure.push([]);
+			pos = structure.length - 1;
+			
+			// store structure identity key for quick reference if needed later
+			mapByIndentityKeyToStruct[i] = [pos, {}];
+		} else {
+			// structure has already been started, further changes would
+			// be nested in deeper structure, get the position in the
+			// list of existing structure
+			pos = mapByIndentityKeyToStruct[i][0];
+		}
+		
+		// populate the structure in the list
+		NestHydrationJS.populateStructure(structure[pos], row, propertyMapping[0], identityMapping[0], idColToPropList, mapByIndentityKeyToStruct[i][1]);
+		return;
+	}
+	
+	// not a list, so a structure
+	
+	// get the identity column and property, move identity mapping along
+	identityPropertyList = _.keys(identityMapping);
+	identityProperty = identityPropertyList[0];
+	identityColumn = identityMapping[identityProperty];
+	
+	if (row[identityColumn] === null) {
+		// the identity column null, the structure doesn't exist
+		return;
+	}
+	
+	if (structure === null) {
+		structure = {};
+	}
+	
+	// go through properties for structure and copy from row
+	for (i = 0; i < idColToPropList[identityColumn].length; i++) {
+		property = idColToPropList[identityColumn][i];
+		
+		structure[property] = row[propertyMapping[property]];
+	}
+	
+	// go through the nested structures remaining in identityMapping
+	for (i = 0; i < identityPropertyList.length; i++) {
+		property = identityPropertyList[i];
+		
+		if (typeof structure[property] === 'undefined') {
+			// nested structure doesn't already exist, initialize
+			structure[property] = _.isArray(identityMapping[property]) ? [] : null;
+			mapByIndentityKeyToStruct[property] = _.isArray(identityMapping[property]) ? [] : {};
+		}
+		
+		// go into the nested structure
+		NestHydrationJS.populateStructure(structure[property], row, propertyMapping[property], identityMapping[property], idColToPropList, mapByIndentityKeyToStruct[property]);
+	}
 };
 
 /* Creates identityMapping by filtering out non identity properties from
  * propertyMapping. Used by nest for efficient iteration.
  */
-NestHydrationJS.identityMappingFilter = function (mapping) {
+NestHydrationJS.identityMapping = function (mapping) {
 	var result, propertyList, firstProperty, property, i;
 	
 	if (_.isArray(mapping)) {
@@ -98,7 +174,7 @@ NestHydrationJS.identityMappingFilter = function (mapping) {
 		}
 		
 		return [
-			NestHydrationJS.identityMappingFilter(mapping[0])
+			NestHydrationJS.identityMapping(mapping[0])
 		];
 	}
 	
@@ -122,7 +198,7 @@ NestHydrationJS.identityMappingFilter = function (mapping) {
 		if (typeof mapping[property] === 'string') {
 			continue;
 		}
-		result[property] = NestHydrationJS.identityMappingFilter(mapping[property]);
+		result[property] = NestHydrationJS.identityMapping(mapping[property]);
 	}
 	
 	return result;
@@ -131,18 +207,18 @@ NestHydrationJS.identityMappingFilter = function (mapping) {
 /* Create a list of non identity properties by identity column. Used by nest
  * for efficient iteration.
  */
-NestHydrationJS.populatePropertyListMap = function (mapping) {
-	var propertyListMap, propertyList, identityColumn, i, property, column, childPLM, childIdentityColumn;
+NestHydrationJS.identityColumnToPropertyList = function (mapping) {
+	var idColToPropList, propertyList, identityColumn, i, property, column, childPLM, childIdentityColumn;
 	
 	if (_.isArray(mapping)) {
 		if (mapping.length !== 1) {
 			throw 'array property must have a single entry';
 		}
 		
-		return NestHydrationJS.populatePropertyListMap(mapping[0]);
+		return NestHydrationJS.identityColumnToPropertyList(mapping[0]);
 	}
 	
-	propertyListMap = {};
+	idColToPropList = {};
 	
 	propertyList = _.keys(mapping);
 	
@@ -158,10 +234,10 @@ NestHydrationJS.populatePropertyListMap = function (mapping) {
 		column = mapping[property];
 		
 		if (typeof column === 'string') {
-			if (typeof propertyListMap[identityColumn] === 'undefined') {
-				propertyListMap[identityColumn] = [];
+			if (typeof idColToPropList[identityColumn] === 'undefined') {
+				idColToPropList[identityColumn] = [];
 			}
-			propertyListMap[identityColumn].push(property);
+			idColToPropList[identityColumn].push(property);
 		} else {
 			// OPTIMIZATION IDEA: This code progressivily copies the contents
 			// of childPLM outwards for each depth of recursion, could instead
@@ -169,20 +245,20 @@ NestHydrationJS.populatePropertyListMap = function (mapping) {
 			// This would be a fairly minor optimization because this code is
 			// only executed once per query and the depth of nesting, the
 			// number of columns nested are seldom significant
-			childPLM = NestHydrationJS.populatePropertyListMap(column);
+			childPLM = NestHydrationJS.identityColumnToPropertyList(column);
 			
 			for (childIdentityColumn in childPLM) {
-				if (typeof propertyListMap[childIdentityColumn] === 'undefined') {
-					propertyListMap[childIdentityColumn] = [];
+				if (typeof idColToPropList[childIdentityColumn] === 'undefined') {
+					idColToPropList[childIdentityColumn] = [];
 				}
-				propertyListMap[childIdentityColumn] = propertyListMap[childIdentityColumn]
+				idColToPropList[childIdentityColumn] = idColToPropList[childIdentityColumn]
 					.concat(childPLM[childIdentityColumn])
 				;
 			}
 		}
 	}
 	
-	return propertyListMap;
+	return idColToPropList;
 };
 
 /* Returns a property mapping data structure based on the names of columns
