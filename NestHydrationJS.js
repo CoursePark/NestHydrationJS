@@ -6,86 +6,103 @@ _ = require('lodash');
 
 NestHydrationJS = {};
 
-NestHydrationJS.nest = function (table, propertyMapping) {
-	var listOnEmpty, identityMapping, idColToPropList, i;
+NestHydrationJS.nest = function (data, structPropToColumnMap) {
+	var listOnEmpty, columnList, table, struct, i, meta;
+	
+	// VALIDATE PARAMS AND BASIC INITIALIZATION
 	
 	listOnEmpty = false;
+	columnList = null;
 	
-	if (propertyMapping == null) {
-		propertyMapping = null;
+	if (structPropToColumnMap == null) {
+		structPropToColumnMap = null;
 	}
 	
-	if (table === null) {
+	if (data === null) {
 		return null;
 	}
 	
-	if (!_.isArray(table) && !_.isPlainObject(table)) {
-		throw 'nest expects param table to be an array or plain object';
-	}
-	
-	if (!_.isArray(propertyMapping) && propertyMapping !== null && propertyMapping !== true) {
+	if (!_.isArray(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
 		throw 'nest expects param propertyMapping to be an array, null, or true';
 	}
 	
 	// propertyMapping can be set to true as a tie break between
 	// returning null (empty structure) or an empty list
-	if (propertyMapping === true) {
+	if (structPropToColumnMap === true) {
 		listOnEmpty = true;
-		propertyMapping = null;
-	} else if (_.isArray(propertyMapping)) {
+		structPropToColumnMap = null;
+	} else if (_.isArray(structPropToColumnMap)) {
 		listOnEmpty = true;
 	}
 	
-	if (table.length === 0) {
-		return listOnEmpty ? [] : null;
-	}
-	
-	if (_.isPlainObject(table)) {
-		// internal table should be a table format but a plaing object
+	if (_.isPlainObject(data)) {
+		// internal table should be a table format but a plain object
 		// could be passed as the first (and only) row of that table
-		table = [table];
+		table = [data];
+	} else if (_.isArray(data)) {
+		table = data;
+	} else {
+		throw 'nest expects param data to form an plain object or an array of plain objects (forming a table)';
 	}
 	
-	if (propertyMapping === null) {
+	if (structPropToColumnMap === null && table.length > 0) {
 		// property mapping not specified, determine it from column names
-		propertyMapping = NestHydrationJS.propertyMappingFromColumnHints(_.keys(table[0]));
+		columnList = _.keys(table[0]);
+		
+		structPropToColumnMap = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 	}
 	
-	if (propertyMapping === null) {
+	if (structPropToColumnMap === null) {
 		// properties is empty, can't form structure or determine content
 		// for a list. Assume a structure unless listOnEmpty
 		return listOnEmpty ? [] : null;
+	} else if (table.length === 0) {
+		// table is empty but 
+		return _.isArray(structPropToColumnMap) ? [] : null;
 	}
 	
-	if (_.isArray(propertyMapping) && propertyMapping.length === 0) {
-		// should return a list but don't know anything about the structure
-		// of the items in the list, return empty list
-		return [];
+	// COMPLETE VALIDATING PARAMS AND BASIC INITIALIZATION
+	
+	if (columnList === null) {
+		columnList = _.keys(table[0]);
 	}
 	
-	// precalculate identity columns before row processing, works by removing
-	// columns that don't belong
-	identityMapping = NestHydrationJS.filterToIdentityMapping(propertyMapping);
+	meta = NestHydrationJS.buildIndex(structPropToColumnMap);
 	
-	// precalculate list of contained properties for each possible
-	// structure, indexed by identity columns
-	idColToPropList = NestHydrationJS.identityColumnToPropertyList(propertyMapping);
+	// BUILD FROM TABLE
 	
-	// default is either an empty list or null structure
-	structure = _.isArray(propertyMapping) ? [] : null;
+	struct = {base: null};
+	pointer = struct;
+	pointerIndex = 'base';
 	
-	// initialize map for keys of identity columns to the nested structures
-	mapByIndentityKeyToStruct = [];
+	mapPointer = structPropToColumnMap;
+	mapPointerStack = [];
 	
-	// row by row build up the data structure using the recursive
-	// populate function
 	for (i = 0; i < table.length; i++) {
-		NestHydrationJS.populateStructure(structure, table[i], propertyMapping, identityMapping, idColToPropList, mapByIndentityKeyToStruct);
+		row = table[i];
+		
+		do {
+			if (typeof mapPointer === 'string') {
+				
+			} else if (_.isArray(mapPointer)) {
+				// array
+				mapPointerStack.push(mapPointer);
+				mapPointer = mapPointer[0];
+			} else {
+				// object
+				prop = mapPointer
+				
+				mapPointerStack.push(mapPointer);
+				mapPointer = mapPointer[prop];
+			}
+		} while ();
 	}
 	
-	return structure;
+	return struct.base;
 };
 
+
+/*
 /* Populate structure with row data based propertyMapping with useful hints
  * coming from diff, identityMapping and idColToPropList
  */
@@ -265,7 +282,7 @@ NestHydrationJS.identityColumnToPropertyList = function (mapping) {
  * in columnList. Used internally by nest when its propertyMapping param
  * is not specified.
  */
-NestHydrationJS.propertyMappingFromColumnHints = function (columnList) {
+NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList) {
 	var propertyMapping, prop, i, column, pointer, navList, j, nav;
 	
 	propertyMapping = {base: null};
