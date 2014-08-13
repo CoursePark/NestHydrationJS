@@ -3,14 +3,14 @@
 var NestHydrationJS = require('../../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
-	describe('buildLookup method', function () {
+	describe('buildMeta method', function () {
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
 					a: 'a'
 				};
-				result = NestHydrationJS.buildLookup(mapping);
+				result = NestHydrationJS.buildMeta(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -42,7 +42,7 @@ describe('NestHydrationJS', function () {
 					a: 'a',
 					b: 'b'
 				};
-				result = NestHydrationJS.buildLookup(mapping);
+				result = NestHydrationJS.buildMeta(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -75,7 +75,7 @@ describe('NestHydrationJS', function () {
 					a: '_a',
 					b: '_b'
 				}];
-				result = NestHydrationJS.buildLookup(mapping);
+				result = NestHydrationJS.buildMeta(mapping);
 			});
 			
 			it('should match expected structure', function () {
@@ -115,7 +115,7 @@ describe('NestHydrationJS', function () {
 						g: '_e__g'
 					}]
 				}];
-				result = NestHydrationJS.buildLookup(mapping);
+				result = NestHydrationJS.buildMeta(mapping);
 			});
 			
 			it('should match expected structure', function () {

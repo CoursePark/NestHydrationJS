@@ -7,7 +7,7 @@ _ = require('lodash');
 NestHydrationJS = {};
 
 NestHydrationJS.nest = function (data, structPropToColumnMap) {
-	var listOnEmpty, columnList, table, lookup, struct, i, row, j, builder, primeIdColumn;
+	var listOnEmpty, columnList, table, meta, struct, i, row, j, builder, primeIdColumn;
 	
 	// VALIDATE PARAMS AND BASIC INITIALIZATION
 	
@@ -61,14 +61,13 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	
 	// COMPLETE VALIDATING PARAMS AND BASIC INITIALIZATION
 	
-	lookup = NestHydrationJS.buildLookup(structPropToColumnMap);
+	meta = NestHydrationJS.buildMeta(structPropToColumnMap);
 	
 	// BUILD FROM TABLE
 	
-	struct = null;
-	
+	// defines function that can be called recursively
 	builder = function (row, idColumn) {
-		var value, objLookup, obj, k, containingId, container;
+		var value, objMeta, obj, k, containingId, container;
 		
 		value = row[idColumn];
 		
@@ -77,47 +76,51 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			return;
 		}
 		
-		objLookup = lookup.idMap[idColumn];
+		// only really concerned with the meta data for this identity column
+		objMeta = meta.idMap[idColumn];
 		
-		if (typeof objLookup.cache[value + ''] !== 'undefined') {
+		if (typeof objMeta.cache[value + ''] !== 'undefined') {
 			// object already exists in cache
-			if (objLookup.containingIdUsage === null) {
+			if (objMeta.containingIdUsage === null) {
 				// at the top level, parent is root
 				return;
 			}
 			
-			containingId = row[objLookup.containingColumn];
-			if (typeof objLookup.containingIdUsage[containingId + ''] !== 'undefined') {
+			containingId = row[objMeta.containingColumn];
+			if (typeof objMeta.containingIdUsage[containingId + ''] !== 'undefined') {
 				// already placed as oneToMany relation in container, done
 				return;
 			}
 			
 			// not already placed as oneToMany relation in container
-			obj = objLookup.cache[value + ''];
+			obj = objMeta.cache[value + ''];
 		} else {
-			// don't have an object defined for this yet
+			// don't have an object defined for this yet, create it
 			obj = {};
-			objLookup.cache[value + ''] = obj;
+			objMeta.cache[value + ''] = obj;
 			
 			// copy in properties from table data
-			for (k = 0; k < objLookup.valueList.length; k++) {
-				obj[objLookup.valueList[k].prop] = row[objLookup.valueList[k].column];
+			for (k = 0; k < objMeta.valueList.length; k++) {
+				obj[objMeta.valueList[k].prop] = row[objMeta.valueList[k].column];
 			}
 			
-			for (k = 0; k < objLookup.toOneList.length; k++) {
-				obj[objLookup.toOneList[k].prop] = null;
-				builder(row, objLookup.toOneList[k].column);
+			// intialize null to one relations and then recursively build them
+			for (k = 0; k < objMeta.toOneList.length; k++) {
+				obj[objMeta.toOneList[k].prop] = null;
+				builder(row, objMeta.toOneList[k].column);
 			}
 			
-			for (k = 0; k < objLookup.toManyPropList.length; k++) {
-				obj[objLookup.toManyPropList[k]] = [];
+			// initialize empty to many relations, they will be populated when
+			// those objects build themselve and find this containing object
+			for (k = 0; k < objMeta.toManyPropList.length; k++) {
+				obj[objMeta.toManyPropList[k]] = [];
 			}
 		}
 		
 		// link from the parent
-		if (objLookup.containingColumn === null) {
+		if (objMeta.containingColumn === null) {
 			// parent is the top level
-			if (objLookup.isOneOfMany) {
+			if (objMeta.isOneOfMany) {
 				// it is an array
 				if (struct === null) {
 					struct = [];
@@ -128,27 +131,33 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				struct = obj;
 			}
 		} else {
-			containingId = row[objLookup.containingColumn];
-			container = lookup.idMap[objLookup.containingColumn].cache[containingId + ''];
+			containingId = row[objMeta.containingColumn];
+			container = meta.idMap[objMeta.containingColumn].cache[containingId + ''];
 			
-			if (objLookup.isOneOfMany) {
+			if (objMeta.isOneOfMany) {
 				// it is an array
-				container[objLookup.ownProp].push(obj);
+				container[objMeta.ownProp].push(obj);
 			} else {
 				// it is this object
-				container[objLookup.ownProp] = obj;
+				container[objMeta.ownProp] = obj;
 			}
 			
 			// record the containing id
-			objLookup.containingIdUsage[containingId + ''] = true;
+			objMeta.containingIdUsage[containingId + ''] = true;
 		}
 	};
 	
+	// struct is populated inside the build function
+	struct = null;
+	
 	for (i = 0; i < table.length; i++) {
+		// go through each row of the table
 		row = table[i];
 		
-		for (j = 0; j < lookup.primeIdColumnList.length; j++) {
-			primeIdColumn = lookup.primeIdColumnList[j];
+		for (j = 0; j < meta.primeIdColumnList.length; j++) {
+			// for each prime id column (corresponding to a to many relation or
+			// the top level) attempted to build an object
+			primeIdColumn = meta.primeIdColumnList[j];
 			
 			builder(row, primeIdColumn);
 		}
@@ -157,27 +166,27 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	return struct;
 };
 
-NestHydrationJS.buildLookup = function (structPropToColumnMap) {
+NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	// internally defines recursive function with extra param. This allows cleaner API
-	var lookup, propList;
+	var meta, propList;
 	
-	lookup = {
+	meta = {
 		primeIdColumnList: [],
 		idMap: {}
 	};
 	
-	var _buildLookup = function (structPropToColumnMap, lookup, isOneOfMany, containingColumn, ownProp) {
-		var propList, idProp, idColumn, i, prop, objLookup, subIdColumn;
+	var _buildMeta = function (structPropToColumnMap, meta, isOneOfMany, containingColumn, ownProp) {
+		var propList, idProp, idColumn, i, prop, objMeta, subIdColumn;
 		
 		propList = _.keys(structPropToColumnMap);
 		idProp = propList[0];
 		idColumn = structPropToColumnMap[idProp];
 		
 		if (isOneOfMany) {
-			lookup.primeIdColumnList.push(idColumn);
+			meta.primeIdColumnList.push(idColumn);
 		}
 		
-		objLookup = {
+		objMeta = {
 			valueList: [],
 			toOneList: [],
 			toManyPropList: [],
@@ -189,51 +198,51 @@ NestHydrationJS.buildLookup = function (structPropToColumnMap) {
 		};
 		
 		if (typeof containingColumn != 'undefined' && typeof ownProp != 'undefined') {
-			objLookup.containingColumn = containingColumn;
-			objLookup.ownProp = ownProp;
-			objLookup.containingIdUsage = {};
+			objMeta.containingColumn = containingColumn;
+			objMeta.ownProp = ownProp;
+			objMeta.containingIdUsage = {};
 		}
 		
 		for (i = 0; i < propList.length; i++) {
 			prop = propList[i];
 			if (typeof structPropToColumnMap[prop] === 'string') {
 				// value property
-				objLookup.valueList.push({
+				objMeta.valueList.push({
 					prop: prop,
 					column: structPropToColumnMap[prop]
 				});
 			} else if (_.isArray(structPropToColumnMap[prop])) {
 				// list of objects / to many relation
-				objLookup.toManyPropList.push(prop);
+				objMeta.toManyPropList.push(prop);
 				
-				_buildLookup(structPropToColumnMap[prop][0], lookup, true, idColumn, prop);
+				_buildMeta(structPropToColumnMap[prop][0], meta, true, idColumn, prop);
 			} else {
 				subIdColumn = _.values(structPropToColumnMap[prop])[0];
 				
 				// object / to one relation
-				objLookup.toOneList.push({
+				objMeta.toOneList.push({
 					prop: prop,
 					column: subIdColumn
 				});
-				_buildLookup(structPropToColumnMap[prop], lookup, false, idColumn, prop);
+				_buildMeta(structPropToColumnMap[prop], meta, false, idColumn, prop);
 			}
 		}
 		
-		lookup.idMap[idColumn] = objLookup;
+		meta.idMap[idColumn] = objMeta;
 	};
 	
 	if (_.isArray(structPropToColumnMap)) {
-		_buildLookup(structPropToColumnMap[0], lookup, true);
+		_buildMeta(structPropToColumnMap[0], meta, true);
 	} else {
 		// register first column as prime id column
 		propList = _.keys(structPropToColumnMap);
-		lookup.primeIdColumnList.push(propList[0]);
+		meta.primeIdColumnList.push(propList[0]);
 		
 		// construct the rest
-		_buildLookup(structPropToColumnMap, lookup, false);
+		_buildMeta(structPropToColumnMap, meta, false);
 	}
 	
-	return lookup;
+	return meta;
 };
 
 /* Returns a property mapping data structure based on the names of columns
