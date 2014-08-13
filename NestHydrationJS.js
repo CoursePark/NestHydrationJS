@@ -87,7 +87,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			containingId = row[objLookup.containingColumn];
-			if (typeof objLookup.containingIdUsage[containingId] !== 'undefined') {
+			if (typeof objLookup.containingIdUsage[containingId + ''] !== 'undefined') {
 				// already placed as oneToMany relation in container, done
 				return;
 			}
@@ -129,7 +129,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 		} else {
 			containingId = row[objLookup.containingColumn];
-			container = lookup.idMap[objLookup.containingColumn].cache[containingId];
+			container = lookup.idMap[objLookup.containingColumn].cache[containingId + ''];
 			
 			if (objLookup.isOneOfMany) {
 				// it is an array
@@ -140,7 +140,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			// record the containing id
-			objLookup.containingIdUsage[containingId] = true;
+			objLookup.containingIdUsage[containingId + ''] = true;
 		}
 	};
 	

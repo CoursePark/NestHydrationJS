@@ -120,6 +120,23 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, one to one, null', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a_id: null}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: null}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, one to many', function () {
 			var result;
 			beforeEach(function () {
@@ -165,6 +182,88 @@ describe('NestHydrationJS', function () {
 					{id: '2', a: [
 						{id: 'a1'}
 					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, one to many, empty', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a__id: null},
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: []}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('complex', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a__id: null, _a__a: null, _a__b__id: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '1',  _a__a: '1',  _a__b__id: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '1',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '2',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{
+						id: '1',
+						a: [],
+						b: {
+							id: '1',
+							a: '1',
+							b: [
+								{
+									id: '1',
+									a: '1'
+								}
+							]
+						}
+					},
+					{
+						id: '2',
+						a: [
+							{
+								id: '1',
+								a: '1',
+								b: []
+							},
+							{
+								id: '2',
+								a: '2',
+								b: [
+									{
+										id: '1'
+									},
+									{
+										id: '2'
+									}
+								]
+							}
+						],
+						b: {
+							id: '1',
+							a: '1',
+							b: [
+								{
+									id: '1',
+									a: '1'
+								}
+							]
+						}
+					}
 				];
 				expect(result).toEqual(expected);
 			});
