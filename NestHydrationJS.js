@@ -104,13 +104,13 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				obj[objLookup.valueList[k].prop] = row[objLookup.valueList[k].column];
 			}
 			
-			for (k = 0; k < objLookup.oneToOneList.length; k++) {
-				obj[objLookup.oneToOneList[k].prop] = null;
-				builder(row, objLookup.oneToOneList[k].column);
+			for (k = 0; k < objLookup.toOneList.length; k++) {
+				obj[objLookup.toOneList[k].prop] = null;
+				builder(row, objLookup.toOneList[k].column);
 			}
 			
-			for (k = 0; k < objLookup.oneToManyPropList.length; k++) {
-				obj[objLookup.oneToManyPropList[k]] = [];
+			for (k = 0; k < objLookup.toManyPropList.length; k++) {
+				obj[objLookup.toManyPropList[k]] = [];
 			}
 		}
 		
@@ -179,8 +179,8 @@ NestHydrationJS.buildLookup = function (structPropToColumnMap) {
 		
 		objLookup = {
 			valueList: [],
-			oneToOneList: [],
-			oneToManyPropList: [],
+			toOneList: [],
+			toManyPropList: [],
 			containingColumn: null,
 			ownProp: null,
 			isOneOfMany: isOneOfMany === true,
@@ -203,15 +203,15 @@ NestHydrationJS.buildLookup = function (structPropToColumnMap) {
 					column: structPropToColumnMap[prop]
 				});
 			} else if (_.isArray(structPropToColumnMap[prop])) {
-				// list of objects / one to many relation
-				objLookup.oneToManyPropList.push(prop);
+				// list of objects / to many relation
+				objLookup.toManyPropList.push(prop);
 				
 				_buildLookup(structPropToColumnMap[prop][0], lookup, true, idColumn, prop);
 			} else {
 				subIdColumn = _.values(structPropToColumnMap[prop])[0];
 				
-				// object / one to one relation
-				objLookup.oneToOneList.push({
+				// object / to one relation
+				objLookup.toOneList.push({
 					prop: prop,
 					column: subIdColumn
 				});

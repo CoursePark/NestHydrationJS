@@ -99,7 +99,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, one to one', function () {
+		describe('hinted mapping, to one', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -120,7 +120,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, one to one, null', function () {
+		describe('hinted mapping, to one, null', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -137,7 +137,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, one to many', function () {
+		describe('hinted mapping, to many', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -162,7 +162,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, one to many, references previously used', function () {
+		describe('hinted mapping, to many, references previously used', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -187,7 +187,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, one to many, empty', function () {
+		describe('hinted mapping, to many, empty', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -288,8 +288,8 @@ describe('NestHydrationJS', function () {
 							valueList: [
 								{prop: 'a', column: 'a'}
 							],
-							oneToOneList: [],
-							oneToManyPropList: [],
+							toOneList: [],
+							toManyPropList: [],
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: false,
@@ -321,8 +321,8 @@ describe('NestHydrationJS', function () {
 								{prop: 'a', column: 'a'},
 								{prop: 'b', column: 'b'}
 							],
-							oneToOneList: [],
-							oneToManyPropList: [],
+							toOneList: [],
+							toManyPropList: [],
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: false,
@@ -354,8 +354,8 @@ describe('NestHydrationJS', function () {
 								{prop: 'a', column: '_a'},
 								{prop: 'b', column: '_b'}
 							],
-							oneToOneList: [],
-							oneToManyPropList: [],
+							toOneList: [],
+							toManyPropList: [],
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: true,
@@ -394,10 +394,10 @@ describe('NestHydrationJS', function () {
 								{prop: 'a', column: '_a'},
 								{prop: 'b', column: '_b'}
 							],
-							oneToOneList: [
+							toOneList: [
 								{prop: 'c', column: '_c_d'}
 							],
-							oneToManyPropList: [
+							toManyPropList: [
 								'e'
 							],
 							containingColumn: null,
@@ -410,8 +410,8 @@ describe('NestHydrationJS', function () {
 							valueList: [
 								{prop: 'd', column: '_c_d'}
 							],
-							oneToOneList: [],
-							oneToManyPropList: [],
+							toOneList: [],
+							toManyPropList: [],
 							containingColumn: '_a',
 							ownProp: 'c',
 							isOneOfMany: false,
@@ -423,8 +423,8 @@ describe('NestHydrationJS', function () {
 								{prop: 'f', column: '_e__f'},
 								{prop: 'g', column: '_e__g'}
 							],
-							oneToOneList: [],
-							oneToManyPropList: [],
+							toOneList: [],
+							toManyPropList: [],
 							containingColumn: '_a',
 							ownProp: 'e',
 							isOneOfMany: true,
