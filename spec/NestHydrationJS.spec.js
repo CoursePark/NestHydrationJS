@@ -255,9 +255,11 @@ describe('NestHydrationJS', function () {
 			beforeEach(function () {
 				var data = [
 					{_id: '1', _a__id: null, _a__a: null, _a__b__id: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '1', _a__id: null, _a__a: null, _a__b__id: null, _b_id: '1', _b_a: '1', _b_b__id: '2', _b_b__a: null},
 					{_id: '2', _a__id: '1',  _a__a: '1',  _a__b__id: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
 					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '1',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
-					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '2',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'}
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '2',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id: '2',  _b_id: '1', _b_a: '1', _b_b__id: '2', _b_b__a: null}
 				];
 				result = NestHydrationJS.nest(data);
 			});
@@ -274,6 +276,10 @@ describe('NestHydrationJS', function () {
 								{
 									id: '1',
 									a: '1'
+								},
+								{
+									id: '2',
+									a: null
 								}
 							]
 						}
@@ -306,6 +312,10 @@ describe('NestHydrationJS', function () {
 								{
 									id: '1',
 									a: '1'
+								},
+								{
+									id: '2',
+									a: null
 								}
 							]
 						}
