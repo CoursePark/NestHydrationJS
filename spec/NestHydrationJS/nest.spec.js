@@ -4,6 +4,71 @@ var NestHydrationJS = require('../../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
 	describe('nest method', function () {
+		describe('null data', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a'
+				};
+				var data = null;
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = null;
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('empty data', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: 'a'
+				}];
+				var data = [];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('empty mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {};
+				var data = [
+					{a: 'value 1'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('empty mapping, array', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{}];
+				var data = [
+					{a: 'value 1'},
+					{a: 'value 2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [{}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
