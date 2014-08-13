@@ -120,6 +120,27 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, to one, integer id', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: 1, _a_id: 1},
+					{_id: 2, _a_id: 2},
+					{_id: 3, _a_id: 3}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: 1, a: {id: 1}},
+					{id: 2, a: {id: 2}},
+					{id: 3, a: {id: 3}}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, to one, null', function () {
 			var result;
 			beforeEach(function () {
@@ -156,6 +177,31 @@ describe('NestHydrationJS', function () {
 					]},
 					{id: '2', a: [
 						{id: 'a3'}
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, to many, integer id', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: 1, _a__id: 1},
+					{_id: 1, _a__id: 2},
+					{_id: 2, _a__id: 3}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: 1, a: [
+						{id: 1},
+						{id: 2}
+					]},
+					{id: 2, a: [
+						{id: 3}
 					]},
 				];
 				expect(result).toEqual(expected);
