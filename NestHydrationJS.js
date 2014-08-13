@@ -13,7 +13,7 @@ NestHydrationJS = {};
  * nested structures can also be created.
  */
 NestHydrationJS.nest = function (data, structPropToColumnMap) {
-	var listOnEmpty, columnList, table, meta, struct, i, row, j, _builder, primeIdColumn;
+	var listOnEmpty, columnList, table, meta, struct, i, row, j, _nest, primeIdColumn;
 	
 	// VALIDATE PARAMS AND BASIC INITIALIZATION
 	
@@ -72,7 +72,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	// BUILD FROM TABLE
 	
 	// defines function that can be called recursively
-	_builder = function (row, idColumn) {
+	_nest = function (row, idColumn) {
 		var value, objMeta, obj, k, containingId, container;
 		
 		value = row[idColumn];
@@ -113,7 +113,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			// intialize null to one relations and then recursively build them
 			for (k = 0; k < objMeta.toOneList.length; k++) {
 				obj[objMeta.toOneList[k].prop] = null;
-				_builder(row, objMeta.toOneList[k].column);
+				_nest(row, objMeta.toOneList[k].column);
 			}
 			
 			// initialize empty to many relations, they will be populated when
@@ -165,7 +165,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			// the top level) attempted to build an object
 			primeIdColumn = meta.primeIdColumnList[j];
 			
-			_builder(row, primeIdColumn);
+			_nest(row, primeIdColumn);
 		}
 	}
 	
@@ -216,9 +216,9 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 				
 				_buildMeta(structPropToColumnMap[prop][0], true, idColumn, prop);
 			} else {
+				// object / to one relation
 				subIdColumn = _.values(structPropToColumnMap[prop])[0];
 				
-				// object / to one relation
 				objMeta.toOneList.push({
 					prop: prop,
 					column: subIdColumn
