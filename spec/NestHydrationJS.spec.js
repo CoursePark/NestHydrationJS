@@ -8,7 +8,7 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					'a': 'a'
+					a: 'a'
 				};
 				var data = {a: 'value 1'};
 				result = NestHydrationJS.nest(data, mapping);
@@ -19,6 +19,156 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+		
+		describe('simple mapping, redundant data', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a'
+				};
+				var data = {a: 'value 1', b: 'value 2'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 'value 1'};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a',
+					b: 'b'
+				};
+				var data = {a: 'value 1', b: 'value 2'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 'value 1', b: 'value 2'};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: 'a',
+					b: 'b'
+				}];
+				var data = [
+					{a: 'value 1', b: 'value 2'},
+					{a: 'value 3', b: 'value 4'},
+					{a: 'value 5', b: 'value 6'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'value 1', b: 'value 2'},
+					{a: 'value 3', b: 'value 4'},
+					{a: 'value 5', b: 'value 6'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array, hinted mapping', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a: 'value 1', _b: 'value 2'},
+					{_a: 'value 3', _b: 'value 4'},
+					{_a: 'value 5', _b: 'value 6'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'value 1', b: 'value 2'},
+					{a: 'value 3', b: 'value 4'},
+					{a: 'value 5', b: 'value 6'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, one to one', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a_id: 'a1'},
+					{_id: '2', _a_id: 'a2'},
+					{_id: '3', _a_id: 'a3'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: {id: 'a1'}},
+					{id: '2', a: {id: 'a2'}},
+					{id: '3', a: {id: 'a3'}}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, one to many', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a__id: 'a1'},
+					{_id: '1', _a__id: 'a2'},
+					{_id: '2', _a__id: 'a3'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: [
+						{id: 'a1'},
+						{id: 'a2'}
+					]},
+					{id: '2', a: [
+						{id: 'a3'}
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, one to many, references previously used', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a__id: 'a1'},
+					{_id: '1', _a__id: 'a2'},
+					{_id: '2', _a__id: 'a1'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: [
+						{id: 'a1'},
+						{id: 'a2'}
+					]},
+					{id: '2', a: [
+						{id: 'a1'}
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
 	});
 	
 	describe('buildLookup method', function () {
@@ -26,7 +176,7 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					'a': 'a'
+					a: 'a'
 				};
 				result = NestHydrationJS.buildLookup(mapping);
 			});
@@ -35,7 +185,7 @@ describe('NestHydrationJS', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
 					idMap: {
-						'a': {
+						a: {
 							valueList: [
 								{prop: 'a', column: 'a'}
 							],
@@ -44,7 +194,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: false,
-							cache: {}
+							cache: {},
+							containingIdUsage: null
 						}
 					}
 				};
@@ -56,8 +207,8 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					'a': 'a',
-					'b': 'b'
+					a: 'a',
+					b: 'b'
 				};
 				result = NestHydrationJS.buildLookup(mapping);
 			});
@@ -66,7 +217,7 @@ describe('NestHydrationJS', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
 					idMap: {
-						'a': {
+						a: {
 							valueList: [
 								{prop: 'a', column: 'a'},
 								{prop: 'b', column: 'b'}
@@ -76,7 +227,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: false,
-							cache: {}
+							cache: {},
+							containingIdUsage: null
 						}
 					}
 				};
@@ -88,8 +240,8 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = [{
-					'a': '_a',
-					'b': '_b'
+					a: '_a',
+					b: '_b'
 				}];
 				result = NestHydrationJS.buildLookup(mapping);
 			});
@@ -98,7 +250,7 @@ describe('NestHydrationJS', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
 					idMap: {
-						'_a': {
+						_a: {
 							valueList: [
 								{prop: 'a', column: '_a'},
 								{prop: 'b', column: '_b'}
@@ -108,7 +260,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: true,
-							cache: {}
+							cache: {},
+							containingIdUsage: null
 						}
 					}
 				};
@@ -120,14 +273,14 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = [{
-					'a': '_a',
-					'b': '_b',
-					'c': {
-						'd': '_c_d'
+					a: '_a',
+					b: '_b',
+					c: {
+						d: '_c_d'
 					},
-					'e': [{
-						'f': '_e__f',
-						'g': '_e__g'
+					e: [{
+						f: '_e__f',
+						g: '_e__g'
 					}]
 				}];
 				result = NestHydrationJS.buildLookup(mapping);
@@ -151,7 +304,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: null,
 							ownProp: null,
 							isOneOfMany: true,
-							cache: {}
+							cache: {},
+							containingIdUsage: null
 						},
 						'_c_d': {
 							valueList: [
@@ -162,7 +316,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: '_a',
 							ownProp: 'c',
 							isOneOfMany: false,
-							cache: {}
+							cache: {},
+							containingIdUsage: {}
 						},
 						'_e__f': {
 							valueList: [
@@ -174,7 +329,8 @@ describe('NestHydrationJS', function () {
 							containingColumn: '_a',
 							ownProp: 'e',
 							isOneOfMany: true,
-							cache: {}
+							cache: {},
+							containingIdUsage: {}
 						}
 					}
 				};

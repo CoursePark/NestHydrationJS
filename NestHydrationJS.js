@@ -80,26 +80,38 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		objLookup = lookup.idMap[idColumn];
 		
 		if (typeof objLookup.cache[value + ''] !== 'undefined') {
-			// already defined
-			return;
-		}
-		
-		// don't have an object defined for this yet
-		obj = {};
-		objLookup.cache[value + ''] = obj;
-		
-		// copy in properties from table data
-		for (k = 0; k < objLookup.valueList.length; k++) {
-			obj[objLookup.valueList[k].prop] = row[objLookup.valueList[k].column];
-		}
-		
-		for (k = 0; k < objLookup.oneToOneList; k++) {
-			obj[objLookup.oneToOneList[k].prop] = null;
-			builder(row, objLookup.oneToOneList[k].column);
-		}
-		
-		for (k = 0; k < objLookup.oneToManyPropList; k++) {
-			obj[objLookup.oneToManyPropList[k]] = [];
+			// object already exists in cache
+			if (objLookup.containingIdUsage === null) {
+				// at the top level, parent is root
+				return;
+			}
+			
+			containingId = row[objLookup.containingColumn];
+			if (typeof objLookup.containingIdUsage[containingId] !== 'undefined') {
+				// already placed as oneToMany relation in container, done
+				return;
+			}
+			
+			// not already placed as oneToMany relation in container
+			obj = objLookup.cache[value + ''];
+		} else {
+			// don't have an object defined for this yet
+			obj = {};
+			objLookup.cache[value + ''] = obj;
+			
+			// copy in properties from table data
+			for (k = 0; k < objLookup.valueList.length; k++) {
+				obj[objLookup.valueList[k].prop] = row[objLookup.valueList[k].column];
+			}
+			
+			for (k = 0; k < objLookup.oneToOneList.length; k++) {
+				obj[objLookup.oneToOneList[k].prop] = null;
+				builder(row, objLookup.oneToOneList[k].column);
+			}
+			
+			for (k = 0; k < objLookup.oneToManyPropList.length; k++) {
+				obj[objLookup.oneToManyPropList[k]] = [];
+			}
 		}
 		
 		// link from the parent
@@ -126,6 +138,9 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				// it is this object
 				container[objLookup.ownProp] = obj;
 			}
+			
+			// record the containing id
+			objLookup.containingIdUsage[containingId] = true;
 		}
 	};
 	
@@ -169,12 +184,14 @@ NestHydrationJS.buildLookup = function (structPropToColumnMap) {
 			containingColumn: null,
 			ownProp: null,
 			isOneOfMany: isOneOfMany === true,
-			cache: {}
+			cache: {},
+			containingIdUsage: null
 		};
 		
 		if (typeof containingColumn != 'undefined' && typeof ownProp != 'undefined') {
 			objLookup.containingColumn = containingColumn;
 			objLookup.ownProp = ownProp;
+			objLookup.containingIdUsage = {};
 		}
 		
 		for (i = 0; i < propList.length; i++) {
