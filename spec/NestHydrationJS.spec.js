@@ -3,19 +3,32 @@
 var NestHydrationJS = require('../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
-	describe('identityMapping method', function () {
+	describe('buildLookup method', function () {
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
 					'a': 'a'
 				};
-				result = NestHydrationJS.identityMapping(mapping);
+				result = NestHydrationJS.buildLookup(mapping);
 			});
 			
 			it('should match expected structure', function () {
 				var expected = {
-					'a': 'a'
+					primeIdColumnList: ['a'],
+					idMap: {
+						'a': {
+							valueList: [
+								{prop: 'a', column: 'a'}
+							],
+							oneToOneList: [],
+							oneToManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {}
+						}
+					}
 				};
 				expect(result).toEqual(expected);
 			});
@@ -28,12 +41,26 @@ describe('NestHydrationJS', function () {
 					'a': 'a',
 					'b': 'b'
 				};
-				result = NestHydrationJS.identityMapping(mapping);
+				result = NestHydrationJS.buildLookup(mapping);
 			});
 			
 			it('should match expected structure', function () {
 				var expected = {
-					'a': 'a'
+					primeIdColumnList: ['a'],
+					idMap: {
+						'a': {
+							valueList: [
+								{prop: 'a', column: 'a'},
+								{prop: 'b', column: 'b'}
+							],
+							oneToOneList: [],
+							oneToManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {}
+						}
+					}
 				};
 				expect(result).toEqual(expected);
 			});
@@ -46,98 +73,26 @@ describe('NestHydrationJS', function () {
 					'a': '_a',
 					'b': '_b'
 				}];
-				result = NestHydrationJS.identityMapping(mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = [{
-					'a': '_a'
-				}];
-				expect(result).toEqual(expected);
-			});
-		});
-		
-		describe('multiple mapping complex', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = [{
-					'a': '_a',
-					'b': '_b',
-					'c': {
-						'd': '_c_d'
-					},
-					'e': [{
-						'f': '_e__f',
-						'g': '_e__g'
-					}]
-				}];
-				result = NestHydrationJS.identityMapping(mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = [{
-					'a': '_a',
-					'c': {
-						'd': '_c_d'
-					},
-					'e': [{
-						'f': '_e__f'
-					}]
-				}];
-				expect(result).toEqual(expected);
-			});
-		});
-	});
-	
-	describe('identityColumnToPropertyList method', function () {
-		describe('simple mapping', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = {
-					'a': 'a'
-				};
-				result = NestHydrationJS.identityColumnToPropertyList(mapping);
+				result = NestHydrationJS.buildLookup(mapping);
 			});
 			
 			it('should match expected structure', function () {
 				var expected = {
-					'a': ['a']
-				};
-				expect(result).toEqual(expected);
-			});
-		});
-		
-		describe('multiple mapping', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = {
-					'a': 'a',
-					'b': 'b'
-				};
-				result = NestHydrationJS.identityColumnToPropertyList(mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = {
-					'a': ['a', 'b']
-				};
-				expect(result).toEqual(expected);
-			});
-		});
-		
-		describe('multiple mapping array', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = [{
-					'a': '_a',
-					'b': '_b'
-				}];
-				result = NestHydrationJS.identityColumnToPropertyList(mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = {
-					'_a': ['a', 'b']
+					primeIdColumnList: ['_a'],
+					idMap: {
+						'_a': {
+							valueList: [
+								{prop: 'a', column: '_a'},
+								{prop: 'b', column: '_b'}
+							],
+							oneToOneList: [],
+							oneToManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {}
+						}
+					}
 				};
 				expect(result).toEqual(expected);
 			});
@@ -157,26 +112,69 @@ describe('NestHydrationJS', function () {
 						'g': '_e__g'
 					}]
 				}];
-				result = NestHydrationJS.identityColumnToPropertyList(mapping);
+				result = NestHydrationJS.buildLookup(mapping);
 			});
 			
 			it('should match expected structure', function () {
 				var expected = {
-					'_a': ['a', 'b'],
-					'_c_d': ['d'],
-					'_e__f': ['f', 'g']
+					primeIdColumnList: ['_a', '_e__f'],
+					idMap: {
+						'_a': {
+							valueList: [
+								{prop: 'a', column: '_a'},
+								{prop: 'b', column: '_b'}
+							],
+							oneToOneList: [
+								{prop: 'c', column: '_c_d'}
+							],
+							oneToManyPropList: [
+								'e'
+							],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {}
+						},
+						'_c_d': {
+							valueList: [
+								{prop: 'd', column: '_c_d'}
+							],
+							oneToOneList: [],
+							oneToManyPropList: [],
+							containingColumn: '_a',
+							ownProp: 'c',
+							isOneOfMany: false,
+							cache: {}
+						},
+						'_e__f': {
+							valueList: [
+								{prop: 'f', column: '_e__f'},
+								{prop: 'g', column: '_e__g'}
+							],
+							oneToOneList: [],
+							oneToManyPropList: [],
+							containingColumn: '_a',
+							ownProp: 'e',
+							isOneOfMany: true,
+							cache: {}
+						}
+					}
 				};
-				expect(result).toEqual(expected);
+				expect(result.primeIdColumnList).toEqual(expected.primeIdColumnList);
+				expect(result.idMap['_a']).toEqual(expected.idMap['_a']);
+				expect(result.idMap['_c_d']).toEqual(expected.idMap['_c_d']);
+				expect(result.idMap['_e__f']).toEqual(expected.idMap['_e__f']);
+				// expect(result).toEqual(expected);
 			});
 		});
 	});
 	
-	describe('propertyMappingFromColumnHints method', function () {
+	describe('structPropToColumnMapFromColumnHints method', function () {
 		describe('passed empty as columnList', function () {
 			var result;
 			beforeEach(function () {
 				var columnList = [];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -190,7 +188,7 @@ describe('NestHydrationJS', function () {
 				var columnList = [
 					'a'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -208,7 +206,7 @@ describe('NestHydrationJS', function () {
 					'a',
 					'b'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -226,7 +224,7 @@ describe('NestHydrationJS', function () {
 				var columnList = [
 					'_a'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -244,7 +242,7 @@ describe('NestHydrationJS', function () {
 					'_a',
 					'_b'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -263,7 +261,7 @@ describe('NestHydrationJS', function () {
 					'a',
 					'b_c'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
@@ -287,7 +285,7 @@ describe('NestHydrationJS', function () {
 					'_a_c__id',
 					'_a_c__d'
 				];
-				result = NestHydrationJS.propertyMappingFromColumnHints(columnList);
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
 			
 			it('should match expected structure', function () {
