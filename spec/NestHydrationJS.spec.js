@@ -3,6 +3,24 @@
 var NestHydrationJS = require('../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
+	describe('nest method', function () {
+		describe('simple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					'a': 'a'
+				};
+				var data = {a: 'value 1'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 'value 1'};
+				expect(result).toEqual(expected);
+			});
+		});
+	});
+	
 	describe('buildLookup method', function () {
 		describe('simple mapping', function () {
 			var result;

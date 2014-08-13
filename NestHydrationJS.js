@@ -22,8 +22,8 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		return null;
 	}
 	
-	if (!_.isArray(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
-		throw 'nest expects param propertyMapping to be an array, null, or true';
+	if (!_.isArray(structPropToColumnMap) && !_.isPlainObject(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
+		throw 'nest expects param propertyMapping to be an array, plain object, null, or true';
 	}
 	
 	// propertyMapping can be set to true as a tie break between
@@ -89,7 +89,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		objLookup.cache[value + ''] = obj;
 		
 		// copy in properties from table data
-		for (k = 0; k < objLookup.valueList; k++) {
+		for (k = 0; k < objLookup.valueList.length; k++) {
 			obj[objLookup.valueList[k].prop] = row[objLookup.valueList[k].column];
 		}
 		
