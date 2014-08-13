@@ -195,18 +195,12 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 			valueList: [],
 			toOneList: [],
 			toManyPropList: [],
-			containingColumn: null,
-			ownProp: null,
+			containingColumn: containingColumn,
+			ownProp: ownProp,
 			isOneOfMany: isOneOfMany === true,
 			cache: {},
-			containingIdUsage: null
+			containingIdUsage: containingColumn === null ? null : {}
 		};
-		
-		if (typeof containingColumn != 'undefined' && typeof ownProp != 'undefined') {
-			objMeta.containingColumn = containingColumn;
-			objMeta.ownProp = ownProp;
-			objMeta.containingIdUsage = {};
-		}
 		
 		for (i = 0; i < propList.length; i++) {
 			prop = propList[i];
@@ -244,14 +238,14 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	
 	if (_.isArray(structPropToColumnMap)) {
 		// call with first object, but inform _buidMeta it is an array
-		_buildMeta(structPropToColumnMap[0], true);
+		_buildMeta(structPropToColumnMap[0], true, null, null);
 	} else {
 		// register first column as prime id column
 		propList = _.keys(structPropToColumnMap);
 		meta.primeIdColumnList.push(propList[0]);
 		
 		// construct the rest
-		_buildMeta(structPropToColumnMap, false);
+		_buildMeta(structPropToColumnMap, false, null, null);
 	}
 	
 	return meta;
