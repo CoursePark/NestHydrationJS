@@ -36,39 +36,6 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('empty mapping', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = {};
-				var data = [
-					{a: 'value 1'}
-				];
-				result = NestHydrationJS.nest(data, mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = {};
-				expect(result).toEqual(expected);
-			});
-		});
-		
-		describe('empty mapping, array', function () {
-			var result;
-			beforeEach(function () {
-				var mapping = [{}];
-				var data = [
-					{a: 'value 1'},
-					{a: 'value 2'}
-				];
-				result = NestHydrationJS.nest(data, mapping);
-			});
-			
-			it('should match expected structure', function () {
-				var expected = [{}];
-				expect(result).toEqual(expected);
-			});
-		});
-		
 		describe('simple mapping', function () {
 			var result;
 			beforeEach(function () {
@@ -310,6 +277,33 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = [
 					{id: '1', a: []}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, to many, double up', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_col1: '1a', _col2: '2a', _col3: '3a', _sub__col1: 'sub 1a', _sub__col2: 'sub 2a', _sub__col3: 'sub 3a'},
+					{_col1: '1a', _col2: '2a', _col3: '3a', _sub__col1: 'sub 1b', _sub__col2: 'sub 2b', _sub__col3: 'sub 3b'},
+					{_col1: '1b', _col2: '2b', _col3: '3b', _sub__col1: 'sub 1a', _sub__col2: 'sub 2a', _sub__col3: 'sub 3a'},
+					{_col1: '1b', _col2: '2b', _col3: '3b', _sub__col1: 'sub 1b', _sub__col2: 'sub 2b', _sub__col3: 'sub 3b'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{col1: '1a', col2: '2a', col3: '3a', sub: [
+						{col1: 'sub 1a', col2: 'sub 2a', col3: 'sub 3a'},
+						{col1: 'sub 1b', col2: 'sub 2b', col3: 'sub 3b'}
+					]},
+					{col1: '1b', col2: '2b', col3: '3b', sub: [
+						{col1: 'sub 1a', col2: 'sub 2a', col3: 'sub 3a'},
+						{col1: 'sub 1b', col2: 'sub 2b', col3: 'sub 3b'},
+					]},
 				];
 				expect(result).toEqual(expected);
 			});

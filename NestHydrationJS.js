@@ -93,12 +93,14 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			containingId = row[objMeta.containingColumn];
-			if (typeof objMeta.containingIdUsage[containingId + ''] !== 'undefined') {
-				// already placed as oneToMany relation in container, done
+			if (typeof objMeta.containingIdUsage[value + ''] !== 'undefined'
+				&& typeof objMeta.containingIdUsage[value + ''][containingId + ''] !== 'undefined'
+			) {
+				// already placed as to many relation in container, done
 				return;
 			}
 			
-			// not already placed as oneToMany relation in container
+			// not already placed as to many relation in container
 			obj = objMeta.cache[value + ''];
 		} else {
 			// don't have an object defined for this yet, create it
@@ -110,16 +112,16 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				obj[objMeta.valueList[k].prop] = row[objMeta.valueList[k].column];
 			}
 			
-			// intialize null to one relations and then recursively build them
-			for (k = 0; k < objMeta.toOneList.length; k++) {
-				obj[objMeta.toOneList[k].prop] = null;
-				_nest(row, objMeta.toOneList[k].column);
-			}
-			
 			// initialize empty to many relations, they will be populated when
 			// those objects build themselve and find this containing object
 			for (k = 0; k < objMeta.toManyPropList.length; k++) {
 				obj[objMeta.toManyPropList[k]] = [];
+			}
+			
+			// intialize null to one relations and then recursively build them
+			for (k = 0; k < objMeta.toOneList.length; k++) {
+				obj[objMeta.toOneList[k].prop] = null;
+				_nest(row, objMeta.toOneList[k].column);
 			}
 		}
 		
@@ -149,7 +151,10 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			// record the containing id
-			objMeta.containingIdUsage[containingId + ''] = true;
+			if (typeof objMeta.containingIdUsage[value + ''] === 'undefined') {
+				objMeta.containingIdUsage[value + ''] = {};
+			}
+			objMeta.containingIdUsage[value + ''][containingId + ''] = true;
 		}
 	};
 	
@@ -184,6 +189,11 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		var propList, idProp, idColumn, i, prop, objMeta, subIdColumn;
 		
 		propList = _.keys(structPropToColumnMap);
+		
+		if (propList.length === 0) {
+			throw 'invalid structPropToColumnMap format';
+		}
+		
 		idProp = propList[0];
 		idColumn = structPropToColumnMap[idProp];
 		
@@ -237,11 +247,17 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	};
 	
 	if (_.isArray(structPropToColumnMap)) {
+		if (structPropToColumnMap.length !== 1) {
+			throw 'invalid structPropToColumnMap format';
+		}
 		// call with first object, but inform _buidMeta it is an array
 		_buildMeta(structPropToColumnMap[0], true, null, null);
-	} else {
+	} else if (_.isPlainObject(structPropToColumnMap)) {
 		// register first column as prime id column
 		propList = _.keys(structPropToColumnMap);
+		if (propList.legnth === 0) {
+			throw 'invalid structPropToColumnMap format';
+		}
 		meta.primeIdColumnList.push(propList[0]);
 		
 		// construct the rest
