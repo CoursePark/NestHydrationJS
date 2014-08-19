@@ -33,6 +33,26 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed single direct property as columnList, renamed', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a'
+				];
+				var renameMap = {
+					'a': 'col_1'
+				};
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList, renameMap);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: 'col_1'
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed multiple direct properties as columnList', function () {
 			var result;
 			beforeEach(function () {
@@ -131,6 +151,39 @@ describe('NestHydrationJS', function () {
 						c: [{
 							id: '_a_c__id',
 							d: '_a_c__d'
+						}]
+					}
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed complex scenaro as columnList, rename', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_id',
+					'_a_id',
+					'_a_b',
+					'_a_c__id',
+					'_a_c__d'
+				];
+				var renameMap = {
+					'_a_c__id': 'col_0',
+					'_a_c__d': 'col_1',
+				};
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList, renameMap);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [{
+					id: '_id',
+					a: {
+						id: '_a_id',
+						b: '_a_b',
+						c: [{
+							id: 'col_0',
+							d: 'col_1'
 						}]
 					}
 				}];

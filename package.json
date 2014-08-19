@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -13,12 +13,14 @@
   "license": "Talk to the Legal Department",
   "main": "NestHydrationJS.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine-node spec"
   },
   "dependencies": {
     "lodash": "2.4.1",
     "q": "1.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jasmine-node": "2.0.0-beta4"
+  },
   "author": "Bluedrop Peformance Learning"
 }

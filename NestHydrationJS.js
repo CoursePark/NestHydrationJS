@@ -271,8 +271,12 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
  * in columnList. Used internally by nest when its propertyMapping param
  * is not specified.
  */
-NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList) {
-	var propertyMapping, prop, i, column, pointer, navList, j, nav;
+NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
+	var propertyMapping, prop, i, column, pointer, navList, j, nav, renamedColumn;
+	
+	if (typeof renameMapping === 'undefined') {
+		renameMapping = {};
+	}
 	
 	propertyMapping = {base: null};
 	
@@ -298,8 +302,9 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList) {
 					pointer[prop] = {};
 				}
 				if (typeof pointer[prop][nav] === 'undefined') {
+					renamedColumn = typeof renameMapping[column] === 'undefined' ? column : renameMapping[column];
 					pointer[prop][nav] = j === (navList.length - 1)
-						? column // is leaf node, store full column string
+						? renamedColumn // is leaf node, store full column string
 						: null // iteration will replace with object or array
 					;
 				}
