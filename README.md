@@ -58,7 +58,7 @@ var definition = [{
 	}]
 }];
 result = NestHydrationJS.nest(table, definition);
-/*
+/* result would be the following:
 [
 	{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
 		{id: '1', title: 'Defintions'},
@@ -101,7 +101,7 @@ var sql = ''
 	+ 'JOIN lesson AS l ON l.id = cl.lesson_id'
 ;
 var table = db.fetchAll(sql);
-/*
+/* table could result in the following:
 [
 	{
 		_id: '1', _title: 'Tabular to Objects',
@@ -138,10 +138,10 @@ var table = db.fetchAll(sql);
 		_teacher_id: '1', _teacher_name: 'David',
 		_lesson__id: '5', _lesson__title: 'Non Array Input'
 	}
-];
+]
 */
 result = NestHydrationJS.nest(table);
-/*
+/* result would be the following:
 [
 	{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
 		{id: '1', title: 'Defintions'},
