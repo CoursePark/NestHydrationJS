@@ -159,3 +159,9 @@ result = NestHydrationJS.nest(table);
 ]
 */
 ```
+
+Related Projects
+----------------
+
+- [NestHydration for PHP](https://github.com/CoursePark/NestHydration) : The original. But a new algorithm was implemented for the JS (this) version and ported back to PHP.
+- [KnexNest](https://github.com/CoursePark/KnexNest) : Takes a [Knex.js](http://knexjs.org/) query object and returns objects.
