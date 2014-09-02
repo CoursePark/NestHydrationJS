@@ -422,8 +422,8 @@ describe('NestHydrationJS', function () {
 						{id: '3', title: 'Objects'}
 					]},
 					{id: '3', title: 'Object On Bottom', teacher: {id: '1', name: 'David'}, lesson: [
-						{id: '5', title: 'Non Array Input'},
-					]},
+						{id: '5', title: 'Non Array Input'}
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -455,8 +455,8 @@ describe('NestHydrationJS', function () {
 						{id: '3', title: 'Objects'}
 					]},
 					{id: '3', title: 'Object On Bottom', teacher: {id: '1', name: 'David'}, lesson: [
-						{id: '5', title: 'Non Array Input'},
-					]},
+						{id: '5', title: 'Non Array Input'}
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
