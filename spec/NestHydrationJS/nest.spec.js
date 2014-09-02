@@ -383,5 +383,83 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+		describe('Documentation Example 1', function () {
+			var result;
+			beforeEach(function () {
+				var table = [
+					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '1', lesson_title: 'Defintions'     },
+					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '2', lesson_title: 'Table Data'     },
+					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '3', lesson_title: 'Objects'        },
+					{id: '2', title: 'Column Names Define Structure', teacher_id: '2', teacher_name: 'Chris', lesson_id: '4', lesson_title: 'Column Names'   },
+					{id: '2', title: 'Column Names Define Structure', teacher_id: '2', teacher_name: 'Chris', lesson_id: '2', lesson_title: 'Table Data'     },
+					{id: '2', title: 'Column Names Define Structure', teacher_id: '2', teacher_name: 'Chris', lesson_id: '3', lesson_title: 'Objects'        },
+					{id: '3', title: 'Object On Bottom',              teacher_id: '1', teacher_name: 'David', lesson_id: '5', lesson_title: 'Non Array Input'}
+				];
+				var definition = [{
+					id: 'id',
+					title: 'title',
+					teacher: {
+						id: 'teacher_id',
+						name: 'teacher_name'
+					},
+					lesson: [{
+						id: 'lesson_id',
+						title: 'lesson_title'
+					}]
+				}];
+				result = NestHydrationJS.nest(table, definition);
+			});
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
+						{id: '1', title: 'Defintions'},
+						{id: '2', title: 'Table Data'},
+						{id: '3', title: 'Objects'}
+					]},
+					{id: '2', title: 'Column Names Define Structure', teacher: {id: '2', name: 'Chris'}, lesson: [
+						{id: '4', title: 'Column Names'},
+						{id: '2', title: 'Table Data'},
+						{id: '3', title: 'Objects'}
+					]},
+					{id: '3', title: 'Object On Bottom', teacher: {id: '1', name: 'David'}, lesson: [
+						{id: '5', title: 'Non Array Input'},
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		describe('Documentation Example 1', function () {
+			var result;
+			beforeEach(function () {
+				var table = [
+					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '1', _lesson__title: 'Defintions'     },
+					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '2', _lesson__title: 'Table Data'     },
+					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '3', _lesson__title: 'Objects'        },
+					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '4', _lesson__title: 'Column Names'   },
+					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '2', _lesson__title: 'Table Data'     },
+					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '3', _lesson__title: 'Objects'        },
+					{_id: '3', _title: 'Object On Bottom',              _teacher_id: '1', _teacher_name: 'David', _lesson__id: '5', _lesson__title: 'Non Array Input'}
+				];
+				result = NestHydrationJS.nest(table);
+			});
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
+						{id: '1', title: 'Defintions'},
+						{id: '2', title: 'Table Data'},
+						{id: '3', title: 'Objects'}
+					]},
+					{id: '2', title: 'Column Names Define Structure', teacher: {id: '2', name: 'Chris'}, lesson: [
+						{id: '4', title: 'Column Names'},
+						{id: '2', title: 'Table Data'},
+						{id: '3', title: 'Objects'}
+					]},
+					{id: '3', title: 'Object On Bottom', teacher: {id: '1', name: 'David'}, lesson: [
+						{id: '5', title: 'Non Array Input'},
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
 	});
 });
