@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
