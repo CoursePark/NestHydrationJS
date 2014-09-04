@@ -19,7 +19,69 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a'}
+								{prop: 'a', column: 'a', type: null}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: null
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping with number type', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'NUMBER'}
+				};
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['a'],
+					idMap: {
+						a: {
+							valueList: [
+								{prop: 'a', column: 'a', type: 'NUMBER'}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: null
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping with boolean type', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'BOOLEAN'}
+				};
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['a'],
+					idMap: {
+						a: {
+							valueList: [
+								{prop: 'a', column: 'a', type: 'BOOLEAN'}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -51,8 +113,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a'},
-								{prop: 'b', column: 'b'}
+								{prop: 'a', column: 'a', type: null},
+								{prop: 'b', column: 'b', type: null}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -84,8 +146,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						_a: {
 							valueList: [
-								{prop: 'a', column: '_a'},
-								{prop: 'b', column: '_b'}
+								{prop: 'a', column: '_a', type: null},
+								{prop: 'b', column: '_b', type: null}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -124,8 +186,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						'_a': {
 							valueList: [
-								{prop: 'a', column: '_a'},
-								{prop: 'b', column: '_b'}
+								{prop: 'a', column: '_a', type: null},
+								{prop: 'b', column: '_b', type: null}
 							],
 							toOneList: [
 								{prop: 'c', column: '_c_d'}
@@ -141,7 +203,7 @@ describe('NestHydrationJS', function () {
 						},
 						'_c_d': {
 							valueList: [
-								{prop: 'd', column: '_c_d'}
+								{prop: 'd', column: '_c_d', type: null}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -153,8 +215,8 @@ describe('NestHydrationJS', function () {
 						},
 						'_e__f': {
 							valueList: [
-								{prop: 'f', column: '_e__f'},
-								{prop: 'g', column: '_e__g'}
+								{prop: 'f', column: '_e__f', type: null},
+								{prop: 'g', column: '_e__g', type: null}
 							],
 							toOneList: [],
 							toManyPropList: [],

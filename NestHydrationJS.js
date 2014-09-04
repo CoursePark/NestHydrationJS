@@ -73,7 +73,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	
 	// defines function that can be called recursively
 	_nest = function (row, idColumn) {
-		var value, objMeta, obj, k, containingId, container;
+		var value, objMeta, obj, k, containingId, container, cellValue;
 		
 		value = row[idColumn];
 		
@@ -96,11 +96,11 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			if (typeof objMeta.containingIdUsage[value + ''] !== 'undefined'
 				&& typeof objMeta.containingIdUsage[value + ''][containingId + ''] !== 'undefined'
 			) {
-				// already placed as to many relation in container, done
+				// already placed as to-many relation in container, done
 				return;
 			}
 			
-			// not already placed as to many relation in container
+			// not already placed as to-many relation in container
 			obj = objMeta.cache[value + ''];
 		} else {
 			// don't have an object defined for this yet, create it
@@ -109,16 +109,26 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			
 			// copy in properties from table data
 			for (k = 0; k < objMeta.valueList.length; k++) {
-				obj[objMeta.valueList[k].prop] = row[objMeta.valueList[k].column];
+				cellValue = row[objMeta.valueList[k].column];
+				
+				if (objMeta.valueList[k].type === 'NUMBER') {
+					// caste to float
+					cellValue = parseFloat(cellValue);
+				} else if (objMeta.valueList[k].type === 'BOOLEAN') {
+					// caste to boolean
+					cellValue = cellValue == true;
+				}
+				
+				obj[objMeta.valueList[k].prop] = cellValue;
 			}
 			
-			// initialize empty to many relations, they will be populated when
+			// initialize empty to-many relations, they will be populated when
 			// those objects build themselve and find this containing object
 			for (k = 0; k < objMeta.toManyPropList.length; k++) {
 				obj[objMeta.toManyPropList[k]] = [];
 			}
 			
-			// intialize null to one relations and then recursively build them
+			// intialize null to-one relations and then recursively build them
 			for (k = 0; k < objMeta.toOneList.length; k++) {
 				obj[objMeta.toOneList[k].prop] = null;
 				_nest(row, objMeta.toOneList[k].column);
@@ -166,7 +176,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		row = table[i];
 		
 		for (j = 0; j < meta.primeIdColumnList.length; j++) {
-			// for each prime id column (corresponding to a to many relation or
+			// for each prime id column (corresponding to a to-many relation or
 			// the top level) attempted to build an object
 			primeIdColumn = meta.primeIdColumnList[j];
 			
@@ -195,7 +205,10 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		}
 		
 		idProp = propList[0];
-		idColumn = structPropToColumnMap[idProp];
+		idColumn = structPropToColumnMap[idProp].column
+			? structPropToColumnMap[idProp].column
+			: structPropToColumnMap[idProp]
+		;
 		
 		if (isOneOfMany) {
 			meta.primeIdColumnList.push(idColumn);
@@ -218,15 +231,23 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 				// value property
 				objMeta.valueList.push({
 					prop: prop,
-					column: structPropToColumnMap[prop]
+					column: structPropToColumnMap[prop],
+					type: null
+				});
+			} else if (structPropToColumnMap[prop].column) {
+				// value property
+				objMeta.valueList.push({
+					prop: prop,
+					column: structPropToColumnMap[prop].column,
+					type: structPropToColumnMap[prop].type
 				});
 			} else if (_.isArray(structPropToColumnMap[prop])) {
-				// list of objects / to many relation
+				// list of objects / to-many relation
 				objMeta.toManyPropList.push(prop);
 				
 				_buildMeta(structPropToColumnMap[prop][0], true, idColumn, prop);
 			} else {
-				// object / to one relation
+				// object / to-one relation
 				subIdColumn = _.values(structPropToColumnMap[prop])[0];
 				
 				objMeta.toOneList.push({
