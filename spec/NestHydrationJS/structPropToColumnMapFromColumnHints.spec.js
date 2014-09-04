@@ -33,6 +33,40 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed single direct property as columnList, number type', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___NUMBER'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a', type: 'NUMBER'}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed single direct property as columnList, boolean type', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___BOOLEAN'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a', type: 'BOOLEAN'}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed single direct property as columnList, renamed', function () {
 			var result;
 			beforeEach(function () {

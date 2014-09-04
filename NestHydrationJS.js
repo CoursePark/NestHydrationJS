@@ -111,12 +111,14 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			for (k = 0; k < objMeta.valueList.length; k++) {
 				cellValue = row[objMeta.valueList[k].column];
 				
-				if (objMeta.valueList[k].type === 'NUMBER') {
-					// caste to float
-					cellValue = parseFloat(cellValue);
-				} else if (objMeta.valueList[k].type === 'BOOLEAN') {
-					// caste to boolean
-					cellValue = cellValue == true;
+				if (cellValue !== null) {
+					if (objMeta.valueList[k].type === 'NUMBER') {
+						// caste to float
+						cellValue = parseFloat(cellValue);
+					} else if (objMeta.valueList[k].type === 'BOOLEAN') {
+						// caste to boolean
+						cellValue = cellValue == true;
+					}
 				}
 				
 				obj[objMeta.valueList[k].prop] = cellValue;
@@ -293,7 +295,7 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
  * is not specified.
  */
 NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
-	var propertyMapping, prop, i, column, pointer, navList, j, nav, renamedColumn;
+	var propertyMapping, prop, i, columnType, type, column, pointer, navList, j, nav, renamedColumn;
 	
 	if (typeof renameMapping === 'undefined') {
 		renameMapping = {};
@@ -302,7 +304,12 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 	propertyMapping = {base: null};
 	
 	for (i = 0; i < columnList.length; i++) {
-		column = columnList[i];
+		columnType = columnList[i].split('___');
+		column = columnType[0];
+		type = columnType.length > 1
+			? columnType[1]
+			: null
+		;
 		
 		pointer = propertyMapping; // point to base on each new column
 		prop = 'base';
@@ -323,7 +330,14 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 					pointer[prop] = {};
 				}
 				if (typeof pointer[prop][nav] === 'undefined') {
-					renamedColumn = typeof renameMapping[column] === 'undefined' ? column : renameMapping[column];
+					renamedColumn = typeof renameMapping[column] === 'undefined'
+						? column
+						: renameMapping[column]
+					;
+					if (type !== null) {
+						// detail the type in the column map if type provided
+						renamedColumn = {column: renamedColumn, type: type};
+					}
 					pointer[prop][nav] = j === (navList.length - 1)
 						? renamedColumn // is leaf node, store full column string
 						: null // iteration will replace with object or array

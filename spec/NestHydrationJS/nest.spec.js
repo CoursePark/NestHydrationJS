@@ -52,6 +52,70 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('simple mapping, number type', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'NUMBER'}
+				};
+				var data = {a: '1'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 1};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping, number type, float', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'NUMBER'}
+				};
+				var data = {a: '1.1'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 1.1};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping, boolean type', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'BOOLEAN'}
+				};
+				var data = {a: '1'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: true};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping, boolean type, false', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'BOOLEAN'}
+				};
+				var data = {a: '0'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: false};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('simple mapping, redundant data', function () {
 			var result;
 			beforeEach(function () {
@@ -81,6 +145,23 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {a: 'value 1', b: 'value 2'};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping, number type, null', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'NUMBER'},
+					b: {column: 'b', type: 'NUMBER'}
+				};
+				var data = {a: 1, b: null};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {a: 1, b: null};
 				expect(result).toEqual(expected);
 			});
 		});
