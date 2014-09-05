@@ -251,6 +251,9 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 			} else {
 				// object / to-one relation
 				subIdColumn = _.values(structPropToColumnMap[prop])[0];
+				if (subIdColumn.column) {
+					subIdColumn = subIdColumn.column;
+				}
 				
 				objMeta.toOneList.push({
 					prop: prop,
@@ -304,8 +307,10 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 	propertyMapping = {base: null};
 	
 	for (i = 0; i < columnList.length; i++) {
-		columnType = columnList[i].split('___');
-		column = columnType[0];
+		column = columnList[i];
+		
+		columnType = column.split('___');
+		
 		type = columnType.length > 1
 			? columnType[1]
 			: null
@@ -314,7 +319,7 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 		pointer = propertyMapping; // point to base on each new column
 		prop = 'base';
 		
-		navList = column.split('_');
+		navList = columnType[0].split('_');
 		
 		for (j = 0; j < navList.length; j++) {
 			nav = navList[j];

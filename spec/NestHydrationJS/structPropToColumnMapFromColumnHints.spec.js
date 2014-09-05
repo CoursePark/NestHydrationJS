@@ -44,7 +44,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					a: {column: 'a', type: 'NUMBER'}
+					a: {column: 'a___NUMBER', type: 'NUMBER'}
 				};
 				expect(result).toEqual(expected);
 			});
@@ -61,7 +61,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					a: {column: 'a', type: 'BOOLEAN'}
+					a: {column: 'a___BOOLEAN', type: 'BOOLEAN'}
 				};
 				expect(result).toEqual(expected);
 			});

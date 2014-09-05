@@ -233,6 +233,27 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, to one, number type', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a_id___NUMBER: '1'},
+					{_id: '2', _a_id___NUMBER: '2'},
+					{_id: '3', _a_id___NUMBER: '3'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: {id: 1}},
+					{id: '2', a: {id: 2}},
+					{id: '3', a: {id: 3}}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, to one, integer id', function () {
 			var result;
 			beforeEach(function () {
