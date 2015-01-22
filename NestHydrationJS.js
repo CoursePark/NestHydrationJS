@@ -194,7 +194,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
  */
 NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	// internally defines recursive function with extra param. This allows cleaner API
-	var meta, propList, _buildMeta;
+	var meta, _buildMeta, columnList, primeIdColumn;
 	
 	// recursive internal function
 	_buildMeta = function (structPropToColumnMap, isOneOfMany, containingColumn, ownProp) {
@@ -280,11 +280,17 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		_buildMeta(structPropToColumnMap[0], true, null, null);
 	} else if (_.isPlainObject(structPropToColumnMap)) {
 		// register first column as prime id column
-		propList = _.keys(structPropToColumnMap);
-		if (propList.legnth === 0) {
+		columnList = _.values(structPropToColumnMap);
+		if (columnList.legnth === 0) {
 			throw 'invalid structPropToColumnMap format';
 		}
-		meta.primeIdColumnList.push(propList[0]);
+		primeIdColumn = columnList[0];
+		
+		if (typeof primeIdColumn !== 'string') {
+			primeIdColumn = primeIdColumn.column;
+		}
+		
+		meta.primeIdColumnList.push(primeIdColumn);
 		
 		// construct the rest
 		_buildMeta(structPropToColumnMap, false, null, null);

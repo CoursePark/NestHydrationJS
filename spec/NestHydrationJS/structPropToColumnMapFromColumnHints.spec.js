@@ -163,7 +163,89 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('passed complex scenaro as columnList', function () {
+		describe('passed complex single base scenaro as columnList', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'id',
+					'a_id',
+					'a_b',
+					'a_c__id',
+					'a_c__d',
+					'a_e_id',
+					'a_e_f'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					id: 'id',
+					a: {
+						id: 'a_id',
+						b: 'a_b',
+						c: [{
+							id: 'a_c__id',
+							d: 'a_c__d'
+						}],
+						e: {
+							id: 'a_e_id',
+							f: 'a_e_f'
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed complex single base scenaro as columnList with number specifiers', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'id___NUMBER',
+					'a_id___NUMBER',
+					'a_b',
+					'a_c__id___NUMBER',
+					'a_c__d',
+					'a_e_id___NUMBER',
+					'a_e_f'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					id: {
+						column: 'id___NUMBER',
+						type: 'NUMBER'
+					},
+					a: {
+						id: {
+							column: 'a_id___NUMBER',
+							type: 'NUMBER'
+						},
+						b: 'a_b',
+						c: [{
+							id: {
+								column: 'a_c__id___NUMBER',
+								type: 'NUMBER'
+							},
+							d: 'a_c__d'
+						}],
+						e: {
+							id: {
+								column: 'a_e_id___NUMBER',
+								type: 'NUMBER'
+							},
+							f: 'a_e_f'
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed complex array base scenaro as columnList', function () {
 			var result;
 			beforeEach(function () {
 				var columnList = [
@@ -171,7 +253,9 @@ describe('NestHydrationJS', function () {
 					'_a_id',
 					'_a_b',
 					'_a_c__id',
-					'_a_c__d'
+					'_a_c__d',
+					'_a_e_id',
+					'_a_e_f'
 				];
 				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
 			});
@@ -185,7 +269,11 @@ describe('NestHydrationJS', function () {
 						c: [{
 							id: '_a_c__id',
 							d: '_a_c__d'
-						}]
+						}],
+						e: {
+							id: '_a_e_id',
+							f: '_a_e_f'
+						}
 					}
 				}];
 				expect(result).toEqual(expected);
