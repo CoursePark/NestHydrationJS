@@ -530,35 +530,172 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-		describe('Documentation Example 1', function () {
+		describe('Flatish With reused structure and some not', function () {
 			var result;
 			beforeEach(function () {
 				var table = [
-					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '1', _lesson__title: 'Defintions'     },
-					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '2', _lesson__title: 'Table Data'     },
-					{_id: '1', _title: 'Tabular to Objects',            _teacher_id: '1', _teacher_name: 'David', _lesson__id: '3', _lesson__title: 'Objects'        },
-					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '4', _lesson__title: 'Column Names'   },
-					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '2', _lesson__title: 'Table Data'     },
-					{_id: '2', _title: 'Column Names Define Structure', _teacher_id: '2', _teacher_name: 'Chris', _lesson__id: '3', _lesson__title: 'Objects'        },
-					{_id: '3', _title: 'Object On Bottom',              _teacher_id: '1', _teacher_name: 'David', _lesson__id: '5', _lesson__title: 'Non Array Input'}
-				];
+					{_uniqueId: '403_10', _gradeComponent_id___NUMBER: 403, _gradeComponent_name: 'gradeComponent4', _gradeComponent_weight: 0.5, _gradeComponent_type: 'participation', _workspace_id___NUMBER: 200, _workspace_name: 'Learning More Every Day Workspace', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '403_10', _grade_given___NUMBER: '0.00000000000000000000', _grade_calculated___NUMBER: '0.00000000000000000000', _grade_manual___BOOLEAN: false, _grade_attendance_id___NUMBER: 8, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 8, _grade_participation_positive___NUMBER: 0, _grade_participation_negative___NUMBER: 1},
+					{_uniqueId: '402_10', _gradeComponent_id___NUMBER: 402, _gradeComponent_name: 'gradeComponent3', _gradeComponent_weight: 0.2, _gradeComponent_type: 'participation', _workspace_id___NUMBER: 201, _workspace_name: 'Bluedrop learning', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '402_10', _grade_given___NUMBER: '0.50', _grade_calculated___NUMBER: null, _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 7, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 7, _grade_participation_positive___NUMBER: null, _grade_participation_negative___NUMBER: null},
+					{_uniqueId: '401_10', _gradeComponent_id___NUMBER: 401, _gradeComponent_name: 'gradeComponent2', _gradeComponent_weight: 0.2, _gradeComponent_type: 'assignments', _workspace_id___NUMBER: 201, _workspace_name: 'Bluedrop learning', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '401_10', _grade_given___NUMBER: '0.00', _grade_calculated___NUMBER: '0.70000000000000000000', _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 5, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 5, _grade_participation_positive___NUMBER: null, _grade_participation_negative___NUMBER: null},
+					{_uniqueId: '400_10', _gradeComponent_id___NUMBER: 400, _gradeComponent_name: 'gradeComponent1', _gradeComponent_weight: 0.5, _gradeComponent_type: 'assignments', _workspace_id___NUMBER: 200, _workspace_name: 'Learning More Every Day Workspace', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '400_10', _grade_given___NUMBER: '0.80', _grade_calculated___NUMBER: '0.70000000000000000000', _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 1, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 1, _grade_participation_positive___NUMBER: 0, _grade_participation_negative___NUMBER: 1}
+    			];
 				result = NestHydrationJS.nest(table);
 			});
 			it('should match expected structure', function () {
 				var expected = [
-					{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
-						{id: '1', title: 'Defintions'},
-						{id: '2', title: 'Table Data'},
-						{id: '3', title: 'Objects'}
-					]},
-					{id: '2', title: 'Column Names Define Structure', teacher: {id: '2', name: 'Chris'}, lesson: [
-						{id: '4', title: 'Column Names'},
-						{id: '2', title: 'Table Data'},
-						{id: '3', title: 'Objects'}
-					]},
-					{id: '3', title: 'Object On Bottom', teacher: {id: '1', name: 'David'}, lesson: [
-						{id: '5', title: 'Non Array Input'}
-					]}
+					{
+						uniqueId: '403_10',
+						gradeComponent: {
+							id: 403,
+							name: 'gradeComponent4',
+							weight: 0.5,
+							type: 'participation'
+						},
+						workspace: {
+							id: 200,
+							name: 'Learning More Every Day Workspace'
+						},
+						user: {
+							id: 10,
+							firstname: 'Bob',
+							lastname: 'Brown',
+							avatar: {
+								gravatar: '1f06a000a42796be652e66d6c078aae3'
+							}
+						},
+						grade: {
+							uniqueId: '403_10',
+							given: 0,
+							calculated: 0,
+							manual: false,
+							attendance: {
+								id: 8,
+								presents: null,
+								absents: null,
+								total : null
+							},
+							participation: {
+								id: 8,
+								positive: 0,
+								negative: 1
+							}
+						}
+					},
+					{
+						uniqueId: '402_10',
+						gradeComponent: {
+							id: 402,
+							name: 'gradeComponent3',
+							weight: 0.2,
+							type: 'participation'
+						},
+						workspace: {
+							id: 201,
+							name: 'Bluedrop learning'
+						},
+						user: {
+							id: 10,
+							firstname: 'Bob',
+							lastname: 'Brown',
+							avatar: {
+								gravatar: '1f06a000a42796be652e66d6c078aae3'
+							}
+						},
+						grade: {
+							uniqueId: '402_10',
+							given: 0.5,
+							calculated: null,
+							manual: true,
+							attendance: {
+								id: 7,
+								presents: null,
+								absents: null,
+								total : null
+							},
+							participation: {
+								id: 7,
+								positive: null,
+								negative: null
+							}
+						}
+					},
+					{
+						uniqueId: '401_10',
+						gradeComponent: {
+							id: 401,
+							name: 'gradeComponent2',
+							weight: 0.2,
+							type: 'assignments'
+						},
+						workspace: {
+							id: 201,
+							name: 'Bluedrop learning'
+						},
+						user: {
+							id: 10,
+							firstname: 'Bob',
+							lastname: 'Brown',
+							avatar:
+							{
+								gravatar: '1f06a000a42796be652e66d6c078aae3'
+							}
+						},
+						grade: {
+							uniqueId: '401_10',
+							given: 0,
+							calculated: 0.7,
+							manual: true,
+							attendance: {
+								id: 5,
+								presents: null,
+								absents: null,
+								total : null
+							},
+							participation: {
+								id: 5,
+								positive: null,
+								negative: null
+							}
+						}
+					},
+					{
+						uniqueId: '400_10',
+						gradeComponent: {
+							id: 400,
+							name: 'gradeComponent1',
+							weight: 0.5,
+							type: 'assignments'
+						},
+						workspace: {
+							id: 200,
+							name: 'Learning More Every Day Workspace'
+						},
+						user: {
+							id: 10,
+							firstname: 'Bob',
+							lastname: 'Brown',
+							avatar: {
+								gravatar: '1f06a000a42796be652e66d6c078aae3'
+							}
+						},
+						grade: {
+							uniqueId: '400_10',
+							given: 0.8,
+							calculated: 0.7,
+							manual: true,
+							attendance: {
+								id: 1,
+								presents: null,
+								absents: null,
+								total : null
+							},
+							participation: {
+								id: 1,
+								positive: 0,
+								negative: 1
+							}
+						}
+					}
 				];
 				expect(result).toEqual(expected);
 			});
