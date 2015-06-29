@@ -233,6 +233,31 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, to one, non id property', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a_someProp: 'same'},
+					{_id: '2', _a_someProp: 'different'},
+					{_id: '3', _a_someProp: 'more different'},
+					{_id: '4', _a_someProp: 'same'},
+					{_id: '5', _a_someProp: 'different'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: '1', a: {someProp: 'same'}},
+					{id: '2', a: {someProp: 'different'}},
+					{id: '3', a: {someProp: 'more different'}},
+					{id: '4', a: {someProp: 'same'}},
+					{id: '5', a: {someProp: 'different'}},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, to one, number type', function () {
 			var result;
 			beforeEach(function () {
