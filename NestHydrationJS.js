@@ -85,7 +85,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		// only really concerned with the meta data for this identity column
 		objMeta = meta.idMap[idColumn];
 		
-		if (typeof objMeta.cache[value + ''] !== 'undefined') {
+		if (typeof objMeta.cache[value] !== 'undefined') {
 			// object already exists in cache
 			if (objMeta.containingIdUsage === null) {
 				// at the top level, parent is root
@@ -93,19 +93,19 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			containingId = row[objMeta.containingColumn];
-			if (typeof objMeta.containingIdUsage[value + ''] !== 'undefined'
-				&& typeof objMeta.containingIdUsage[value + ''][containingId + ''] !== 'undefined'
+			if (typeof objMeta.containingIdUsage[value] !== 'undefined'
+				&& typeof objMeta.containingIdUsage[value][containingId] !== 'undefined'
 			) {
 				// already placed as to-many relation in container, done
 				return;
 			}
 			
 			// not already placed as to-many relation in container
-			obj = objMeta.cache[value + ''];
+			obj = objMeta.cache[value];
 		} else {
 			// don't have an object defined for this yet, create it
 			obj = {};
-			objMeta.cache[value + ''] = obj;
+			objMeta.cache[value] = obj;
 			
 			// copy in properties from table data
 			for (k = 0; k < objMeta.valueList.length; k++) {
@@ -152,7 +152,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 		} else {
 			containingId = row[objMeta.containingColumn];
-			container = meta.idMap[objMeta.containingColumn].cache[containingId + ''];
+			container = meta.idMap[objMeta.containingColumn].cache[containingId];
 			
 			if (objMeta.isOneOfMany) {
 				// it is an array
@@ -163,10 +163,10 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			}
 			
 			// record the containing id
-			if (typeof objMeta.containingIdUsage[value + ''] === 'undefined') {
-				objMeta.containingIdUsage[value + ''] = {};
+			if (typeof objMeta.containingIdUsage[value] === 'undefined') {
+				objMeta.containingIdUsage[value] = {};
 			}
-			objMeta.containingIdUsage[value + ''][containingId + ''] = true;
+			objMeta.containingIdUsage[value][containingId] = true;
 		}
 	};
 	
