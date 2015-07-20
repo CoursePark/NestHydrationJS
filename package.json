@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -20,7 +20,7 @@
     "url": "git@github.com:CoursePark/NestHydrationJS.git"
   },
   "dependencies": {
-    "lodash": "2.4.1",
+    "lodash": "3.1.0",
     "q": "1.4.1"
   },
   "devDependencies": {
