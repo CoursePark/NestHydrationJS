@@ -279,7 +279,7 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	} else if (_.isPlainObject(structPropToColumnMap)) {
 		// register first column as prime id column
 		columnList = _.values(structPropToColumnMap);
-		if (columnList.legnth === 0) {
+		if (columnList.length === 0) {
 			throw 'invalid structPropToColumnMap format';
 		}
 		primeIdColumn = columnList[0];
