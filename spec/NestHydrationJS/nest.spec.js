@@ -4,6 +4,72 @@ var NestHydrationJS = require('../../NestHydrationJS');
 
 describe('NestHydrationJS', function () {
 	describe('nest method', function () {
+		describe('invalid structPropToColumnMap param', function () {
+			var error;
+			beforeEach(function () {
+				try {
+					NestHydrationJS.nest([], false);
+				} catch (err) {
+					error = err;
+				}
+			});
+			
+			it('should match expected error', function () {
+				expect(error.message).toEqual('nest expects param structPropToColumnMap to be an array, plain object, null, or true');
+			});
+		});
+		
+		describe('invalid structPropToColumnMap param, non simple object', function () {
+			var error;
+			beforeEach(function () {
+				try {
+					NestHydrationJS.nest([], new Error());
+				} catch (err) {
+					error = err;
+				}
+			});
+			
+			it('should match expected error', function () {
+				expect(error.message).toEqual('nest expects param structPropToColumnMap to be an array, plain object, null, or true');
+			});
+		});
+		
+		describe('invalid data param, string', function () {
+			var error;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a'
+				};
+				try {
+					NestHydrationJS.nest('not valid', mapping);
+				} catch (err) {
+					error = err;
+				}
+			});
+			
+			it('should match expected error', function () {
+				expect(error.message).toEqual('nest expects param data to be in the form of a plain object or an array of plain objects (forming a table)');
+			});
+		});
+		
+		describe('invalid data param, number', function () {
+			var error;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a'
+				};
+				try {
+					NestHydrationJS.nest(5, mapping);
+				} catch (err) {
+					error = err;
+				}
+			});
+			
+			it('should match expected error', function () {
+				expect(error.message).toEqual('nest expects param data to be in the form of a plain object or an array of plain objects (forming a table)');
+			});
+		});
+		
 		describe('null data', function () {
 			var result;
 			beforeEach(function () {

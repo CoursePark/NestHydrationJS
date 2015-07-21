@@ -29,7 +29,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	}
 	
 	if (!_.isArray(structPropToColumnMap) && !_.isPlainObject(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
-		throw new Error('nest expects param propertyMapping to be an array, plain object, null, or true');
+		throw new Error('nest expects param structPropToColumnMap to be an array, plain object, null, or true');
 	}
 	
 	if (_.isPlainObject(data)) {
@@ -39,10 +39,10 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	} else if (_.isArray(data)) {
 		table = data;
 	} else {
-		throw Error('nest expects param data to form an plain object or an array of plain objects (forming a table)');
+		throw Error('nest expects param data to be in the form of a plain object or an array of plain objects (forming a table)');
 	}
 	
-	// propertyMapping can be set to true as a tie break between
+	// structPropToColumnMap can be set to true as a tie break between
 	// returning null (empty structure) or an empty list
 	if (structPropToColumnMap === true) {
 		listOnEmpty = true;
