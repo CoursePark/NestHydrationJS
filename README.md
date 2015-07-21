@@ -1,5 +1,7 @@
 NestHydrationJS
 ===============
+[![Build Status](https://travis-ci.org/CoursePark/NestHydrationJS.svg?branch=master)](https://travis-ci.org/CoursePark/NestHydrationJS)
+[![Coverage Status](https://coveralls.io/repos/CoursePark/NestHydration/badge.svg?branch=master&service=github)](https://coveralls.io/github/CoursePark/NestHydration?branch=master)
 
 Converts tabular data into a nested object/array structure based on a definition object or specially named columns.
 
