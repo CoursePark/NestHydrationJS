@@ -198,6 +198,41 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed complex single base scenaro as columnList with capitializations', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'id',
+					'aItem__id',
+					'aItem__bValue',
+					'aItem__cItem__id',
+					'aItem__cItem__dValue',
+					'aItem__cItem__eItem_id',
+					'aItem__cItem__eItem_fValue'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					id: 'id',
+					aItem: [{
+						id: 'aItem__id',
+						bValue: 'aItem__bValue',
+						cItem: [{
+							id: 'aItem__cItem__id',
+							dValue: 'aItem__cItem__dValue',
+							eItem: {
+								id: 'aItem__cItem__eItem_id',
+								fValue: 'aItem__cItem__eItem_fValue'
+							}
+						}]
+					}]
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed complex single base scenaro as columnList with number specifiers', function () {
 			var result;
 			beforeEach(function () {

@@ -502,6 +502,27 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, to many, double up, capitialization', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id___NUMBER: '1', _aItem__id___NUMBER: '10', _aItem__bValue: 'b10', _aItem__cItem__id___NUMBER: '100', _aItem__cItem__dItem_id___NUMBER: '1000', _aItem__cItem__dItem_eValue: 'e1000'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{id: 1, aItem: [
+						{id: 10, bValue: 'b10', cItem: [
+							{id: 100, dItem: {id: 1000, eValue: 'e1000'}}
+						]}
+					]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('complex', function () {
 			var result;
 			beforeEach(function () {
