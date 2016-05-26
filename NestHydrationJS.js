@@ -6,6 +6,11 @@ _ = require('lodash');
 
 NestHydrationJS = {};
 
+NestHydrationJS.types = {
+	NUMBER: 'NUMBER',
+	BOOLEAN: 'BOOLEAN'
+};
+
 /* Creates a data structure containing nested objects and/or arrays from
  * tabular data based on a structure definition provided by
  * structPropToColumnMap. If structPropToColumnMap is not provided but
@@ -110,10 +115,10 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				cellValue = row[objMeta.valueList[k].column];
 				
 				if (cellValue !== null) {
-					if (objMeta.valueList[k].type === 'NUMBER') {
+					if (objMeta.valueList[k].type === NestHydrationJS.types.NUMBER) {
 						// caste to float
 						cellValue = parseFloat(cellValue);
-					} else if (objMeta.valueList[k].type === 'BOOLEAN') {
+					} else if (objMeta.valueList[k].type === NestHydrationJS.types.BOOLEAN) {
 						// caste to boolean
 						cellValue = cellValue == true;
 					}

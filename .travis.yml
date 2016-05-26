@@ -1,6 +1,12 @@
 language: node_js
+sudo: false
+branches:
+    only:
+        - master
 node_js:
     - "0.12.5"
+    - "4"
+    - "6"
 script:
     - npm test
     - npm run coveralls
