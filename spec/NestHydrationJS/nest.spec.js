@@ -318,7 +318,7 @@ describe('NestHydrationJS', function () {
 					{id: '2', a: {someProp: 'different'}},
 					{id: '3', a: {someProp: 'more different'}},
 					{id: '4', a: {someProp: 'same'}},
-					{id: '5', a: {someProp: 'different'}},
+					{id: '5', a: {someProp: 'different'}}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -402,7 +402,7 @@ describe('NestHydrationJS', function () {
 					]},
 					{id: '2', a: [
 						{id: 'a3'}
-					]},
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -427,7 +427,7 @@ describe('NestHydrationJS', function () {
 					]},
 					{id: 2, a: [
 						{id: 3}
-					]},
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -452,7 +452,7 @@ describe('NestHydrationJS', function () {
 					]},
 					{id: '2', a: [
 						{id: 'a1'}
-					]},
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -462,7 +462,7 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
-					{_id: '1', _a__id: null},
+					{_id: '1', _a__id: null}
 				];
 				result = NestHydrationJS.nest(data);
 			});
@@ -495,8 +495,8 @@ describe('NestHydrationJS', function () {
 					]},
 					{col1: '1b', col2: '2b', col3: '3b', sub: [
 						{col1: 'sub 1a', col2: 'sub 2a', col3: 'sub 3a'},
-						{col1: 'sub 1b', col2: 'sub 2b', col3: 'sub 3b'},
-					]},
+						{col1: 'sub 1b', col2: 'sub 2b', col3: 'sub 3b'}
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -517,7 +517,7 @@ describe('NestHydrationJS', function () {
 						{id: 10, bValue: 'b10', cItem: [
 							{id: 100, dItem: {id: 1000, eValue: 'e1000'}}
 						]}
-					]},
+					]}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -650,7 +650,7 @@ describe('NestHydrationJS', function () {
 					{_uniqueId: '402_10', _gradeComponent_id___NUMBER: 402, _gradeComponent_name: 'gradeComponent3', _gradeComponent_weight: 0.2, _gradeComponent_type: 'participation', _workspace_id___NUMBER: 201, _workspace_name: 'Bluedrop learning', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '402_10', _grade_given___NUMBER: '0.50', _grade_calculated___NUMBER: null, _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 7, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 7, _grade_participation_positive___NUMBER: null, _grade_participation_negative___NUMBER: null},
 					{_uniqueId: '401_10', _gradeComponent_id___NUMBER: 401, _gradeComponent_name: 'gradeComponent2', _gradeComponent_weight: 0.2, _gradeComponent_type: 'assignments', _workspace_id___NUMBER: 201, _workspace_name: 'Bluedrop learning', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '401_10', _grade_given___NUMBER: '0.00', _grade_calculated___NUMBER: '0.70000000000000000000', _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 5, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 5, _grade_participation_positive___NUMBER: null, _grade_participation_negative___NUMBER: null},
 					{_uniqueId: '400_10', _gradeComponent_id___NUMBER: 400, _gradeComponent_name: 'gradeComponent1', _gradeComponent_weight: 0.5, _gradeComponent_type: 'assignments', _workspace_id___NUMBER: 200, _workspace_name: 'Learning More Every Day Workspace', _user_id___NUMBER: '10', _user_avatar_gravatar: '1f06a000a42796be652e66d6c078aae3', _user_firstname: 'Bob', _user_lastname: 'Brown', _grade_uniqueId: '400_10', _grade_given___NUMBER: '0.80', _grade_calculated___NUMBER: '0.70000000000000000000', _grade_manual___BOOLEAN: true, _grade_attendance_id___NUMBER: 1, _grade_attendance_presents___NUMBER: null, _grade_attendance_absents___NUMBER: null, _grade_attendance_total___NUMBER: null, _grade_participation_id___NUMBER: 1, _grade_participation_positive___NUMBER: 0, _grade_participation_negative___NUMBER: 1}
-    			];
+				];
 				result = NestHydrationJS.nest(table);
 			});
 			it('should match expected structure', function () {

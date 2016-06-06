@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -15,7 +15,9 @@
   "scripts": {
     "coverage": "node_modules/istanbul/lib/cli.js cover node_modules/jasmine/bin/jasmine.js",
     "coveralls": "node_modules/istanbul/lib/cli.js cover node_modules/jasmine/bin/jasmine.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "node_modules/jasmine/bin/jasmine.js"
+    "test": "npm run test:spec && npm run lint",
+    "test:spec": "node_modules/jasmine/bin/jasmine.js",
+    "lint": "eslint NestHydrateJS.js spec/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "coveralls": "2.11.9",
+    "eslint": "^2.11.1",
     "istanbul": "0.4.3",
     "jasmine": "2.4.1"
   },

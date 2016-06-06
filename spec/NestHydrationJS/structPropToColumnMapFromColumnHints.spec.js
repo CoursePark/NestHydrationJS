@@ -327,7 +327,7 @@ describe('NestHydrationJS', function () {
 				];
 				var renameMap = {
 					'_a_c__id': 'col_0',
-					'_a_c__d': 'col_1',
+					'_a_c__d': 'col_1'
 				};
 				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList, renameMap);
 			});
