@@ -12,9 +12,9 @@ Tabular Data With Definition
 var NestHydrationJS = require('nesthydrationjs');
 var table = [
 	{
-		id: '1', title: 'Tabular to Objects', required: '1',,
+		id: '1', title: 'Tabular to Objects', required: '1',
 		teacher_id: '1', teacher_name: 'David',
-		lesson_id: '1', lesson_title: 'Defintions'
+		lesson_id: '1', lesson_title: 'Definitions'
 	},
 	{
 		id: '1', title: 'Tabular to Objects', required: '1',
@@ -150,7 +150,7 @@ result = NestHydrationJS.nest(table);
 /* result would be the following:
 [
 	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 1, title: 'Defintions'},
+		{id: 1, title: 'Definitions'},
 		{id: 2, title: 'Table Data'},
 		{id: 3, title: 'Objects'}
 	]},
@@ -162,6 +162,35 @@ result = NestHydrationJS.nest(table);
 	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: [
 		{id: 5, title: 'Non Array Input'},
 	]}
+]
+*/
+```
+
+Custom Type Definition
+----------------------
+
+New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback function that takes
+the cell value, column name and the fill row data.
+
+### Example Usage
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+NestHydrationJS.registerType('CUSTOM_TYPE', function(value) { return '::' + value + '::'; });
+
+var table = [
+	{
+		id: 1, title: 'Custom Data Types'
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', type: 'CUSTOM_TYPE'},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: '::Custom Data Types::'}
 ]
 */
 ```

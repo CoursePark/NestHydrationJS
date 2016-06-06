@@ -502,7 +502,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
-		describe('hinted mapping, to many, double up, capitialization', function () {
+		describe('hinted mapping, to many, double up, capitalization', function () {
 			var result;
 			beforeEach(function () {
 				var data = [
@@ -601,7 +601,7 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var table = [
-					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '1', lesson_title: 'Defintions'     },
+					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '1', lesson_title: 'Definitions'    },
 					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '2', lesson_title: 'Table Data'     },
 					{id: '1', title: 'Tabular to Objects',            teacher_id: '1', teacher_name: 'David', lesson_id: '3', lesson_title: 'Objects'        },
 					{id: '2', title: 'Column Names Define Structure', teacher_id: '2', teacher_name: 'Chris', lesson_id: '4', lesson_title: 'Column Names'   },
@@ -626,7 +626,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = [
 					{id: '1', title: 'Tabular to Objects', teacher: {id: '1', name: 'David'}, lesson: [
-						{id: '1', title: 'Defintions'},
+						{id: '1', title: 'Definitions'},
 						{id: '2', title: 'Table Data'},
 						{id: '3', title: 'Objects'}
 					]},
