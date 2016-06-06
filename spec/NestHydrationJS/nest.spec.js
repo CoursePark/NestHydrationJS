@@ -199,7 +199,25 @@ describe('NestHydrationJS', function () {
 			afterAll(function() {
 				delete NestHydrationJS.typeHandlers.CUSTOM_TYPE;
 			});
-			
+
+			it('should match expected structure', function () {
+				var expected = {a: '::value::'};
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('simple mapping, function type', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: function(value) {
+						return '::' + value + '::';
+					}}
+				};
+				var data = {a: 'value'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
 			it('should match expected structure', function () {
 				var expected = {a: '::value::'};
 				expect(result).toEqual(expected);

@@ -124,7 +124,11 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				cellValue = row[objMeta.valueList[k].column];
 
 				if (cellValue !== null) {
-					valueTypeFunction = NestHydrationJS.typeHandlers[cell.type];
+					if (_.isFunction(cell.type)) {
+						valueTypeFunction = cell.type;
+					} else {
+						valueTypeFunction = NestHydrationJS.typeHandlers[cell.type];
+					}
 					if (valueTypeFunction) {
 						cellValue = valueTypeFunction(cellValue, cell.column, row);
 					}

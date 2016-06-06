@@ -169,14 +169,18 @@ result = NestHydrationJS.nest(table);
 Custom Type Definition
 ----------------------
 
-New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback function that takes
-the cell value, column name and the fill row data.
+### As a custom type
 
-### Example Usage
+New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback
+function that takes the cell value, column name and the full row data.
+
+#### Example Usage
 
 ```javascript
 var NestHydrationJS = require('nesthydrationjs');
-NestHydrationJS.registerType('CUSTOM_TYPE', function(value) { return '::' + value + '::'; });
+NestHydrationJS.registerType('CUSTOM_TYPE', function(value, name, row) {
+	return '::' + value + '::';
+});
 
 var table = [
 	{
@@ -186,6 +190,36 @@ var table = [
 var definition = [{
 	id: 'id'
 	title: {column: 'title', type: 'CUSTOM_TYPE'},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: '::Custom Data Types::'}
+]
+*/
+```
+
+### Type as a function
+
+You can also define the type of a column in the definition object as a function and that function will be called for each
+value provided. The arguments passed are the same as those passed to a custom type handler. This allows formatting of a 
+type without defining it as a global type.
+
+#### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+
+var table = [
+	{
+		id: 1, title: 'Custom Data Types'
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', type: function(value, name, row) {
+		return '::' + value + '::';
+	}},
 }];
 result = NestHydrationJS.nest(table, definition);
 /* result would be the following:
