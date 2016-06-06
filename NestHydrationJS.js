@@ -18,12 +18,11 @@ NestHydrationJS.types = {
  * nested structures can also be created.
  */
 NestHydrationJS.nest = function (data, structPropToColumnMap) {
-	var listOnEmpty, columnList, table, meta, struct, i, row, j, _nest, primeIdColumn;
+	var listOnEmpty, table, meta, struct, i, row, j, _nest, primeIdColumn;
 	
 	// VALIDATE PARAMS AND BASIC INITIALIZATION
 	
 	listOnEmpty = false;
-	columnList = null;
 	
 	if (typeof structPropToColumnMap === 'undefined') {
 		structPropToColumnMap = null;
@@ -197,7 +196,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
  */
 NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 	// internally defines recursive function with extra param. This allows cleaner API
-	var meta, _buildMeta, columnList, primeIdColumn;
+	var meta, _buildMeta, primeIdColumn;
 	
 	// recursive internal function
 	_buildMeta = function (structPropToColumnMap, isOneOfMany, containingColumn, ownProp) {
