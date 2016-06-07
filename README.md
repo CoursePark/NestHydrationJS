@@ -168,6 +168,34 @@ result = NestHydrationJS.nest(table);
 */
 ```
 
+Default Values
+--------------
+
+You can specify a default value for a property by specifying the `default` property in the definition object. The value
+of the property will be replaced with the default value when it's row data is `null`.
+
+### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+
+var table = [
+	{
+		id: 1, title: null
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', default: 'my default'},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: 'my default'}
+]
+*/
+```
+
 Custom Type Definition
 ----------------------
 

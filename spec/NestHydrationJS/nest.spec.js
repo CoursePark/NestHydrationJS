@@ -206,6 +206,22 @@ describe('NestHydrationJS', function () {
 			});
 		});
 
+		describe('simple mapping, with default', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', default: 'a_default'}
+				};
+				var data = {a: null};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {a: 'a_default'};
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('simple mapping, function type', function () {
 			var result;
 			beforeEach(function () {
@@ -256,7 +272,23 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-		
+
+		describe('multiple mapping, with default', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'NUMBER', default: 'a_default'},
+					b: {column: 'b', type: 'NUMBER', default: 'b_default'}
+				};
+				var data = {a: null, b: null};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {a: 'a_default', b: 'b_default'};
+				expect(result).toEqual(expected);
+			});
+		});
 		describe('multiple mapping, number type, null', function () {
 			var result;
 			beforeEach(function () {

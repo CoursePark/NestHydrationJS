@@ -19,7 +19,7 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						aColumnName: {
 							valueList: [
-								{prop: 'a', column: 'aColumnName', type: null}
+								{prop: 'a', column: 'aColumnName', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -27,7 +27,8 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: false,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
@@ -50,7 +51,7 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a', type: 'NUMBER'}
+								{prop: 'a', column: 'a', type: 'NUMBER', default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -58,7 +59,8 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: false,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
@@ -81,7 +83,7 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a', type: 'BOOLEAN'}
+								{prop: 'a', column: 'a', type: 'BOOLEAN', default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -89,14 +91,47 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: false,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
 				expect(result).toEqual(expected);
 			});
 		});
-		
+
+		describe('simple mapping with id default value', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', type: 'BOOLEAN', default: 'a_default'}
+				};
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['a'],
+					idMap: {
+						a: {
+							valueList: [
+								{prop: 'a', column: 'a', type: 'BOOLEAN', default: 'a_default'}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: null,
+							default: 'a_default'
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping', function () {
 			var result;
 			beforeEach(function () {
@@ -113,8 +148,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a', type: null},
-								{prop: 'b', column: 'b', type: null}
+								{prop: 'a', column: 'a', type: null, default: undefined},
+								{prop: 'b', column: 'b', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -122,14 +157,99 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: false,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
 				expect(result).toEqual(expected);
 			});
 		});
-		
+
+		describe('multiple mapping having id with default', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: '_a', default: 'a_default'},
+					b: '_b'
+				};
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_a'],
+					idMap: {
+						_a: {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
+								{prop: 'b', column: '_b', type: null, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: null,
+							default: 'a_default'
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping complex having default', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					id: '_id',
+					a: {
+						c: {column: '_c', default: 'c_default'}
+					},
+					b: '_b'
+				};
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_id'],
+					idMap: {
+						_c: {
+							valueList: [
+								{prop: 'c', column: '_c', type: undefined, default: 'c_default'}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: '_id',
+							ownProp: 'a',
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: {},
+							default: 'c_default'
+						},
+						_id: {
+							valueList: [
+								{prop: 'id', column: '_id', type: null, default: undefined},
+								{prop: 'b', column: '_b', type: null, default: undefined}
+							],
+							toOneList: [{prop: 'a', column: '_c'}],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: false,
+							cache: {},
+							containingIdUsage: null,
+							default: null
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping array', function () {
 			var result;
 			beforeEach(function () {
@@ -146,8 +266,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						_a: {
 							valueList: [
-								{prop: 'a', column: '_a', type: null},
-								{prop: 'b', column: '_b', type: null}
+								{prop: 'a', column: '_a', type: null, default: undefined},
+								{prop: 'b', column: '_b', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -155,7 +275,8 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: true,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
@@ -179,8 +300,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						_a: {
 							valueList: [
-								{prop: 'a', column: '_a', type: 'NUMBER'},
-								{prop: 'b', column: '_b', type: null}
+								{prop: 'a', column: '_a', type: 'NUMBER', default: undefined},
+								{prop: 'b', column: '_b', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -188,14 +309,49 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: true,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						}
 					}
 				};
 				expect(result).toEqual(expected);
 			});
 		});
-		
+
+		describe('multiple mapping array with id having default', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: '_a', default: 'a_default'},
+					b: '_b'
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_a'],
+					idMap: {
+						_a: {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
+								{prop: 'b', column: '_b', type: null, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							default: 'a_default'
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping complex', function () {
 			var result;
 			beforeEach(function () {
@@ -219,8 +375,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						'_a': {
 							valueList: [
-								{prop: 'a', column: '_a', type: null},
-								{prop: 'b', column: '_b', type: null}
+								{prop: 'a', column: '_a', type: null, default: undefined},
+								{prop: 'b', column: '_b', type: null, default: undefined}
 							],
 							toOneList: [
 								{prop: 'c', column: '_c_d'}
@@ -232,11 +388,12 @@ describe('NestHydrationJS', function () {
 							ownProp: null,
 							isOneOfMany: true,
 							cache: {},
-							containingIdUsage: null
+							containingIdUsage: null,
+							default: null
 						},
 						'_c_d': {
 							valueList: [
-								{prop: 'd', column: '_c_d', type: null}
+								{prop: 'd', column: '_c_d', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -244,12 +401,13 @@ describe('NestHydrationJS', function () {
 							ownProp: 'c',
 							isOneOfMany: false,
 							cache: {},
-							containingIdUsage: {}
+							containingIdUsage: {},
+							default: null
 						},
 						'_e__f': {
 							valueList: [
-								{prop: 'f', column: '_e__f', type: null},
-								{prop: 'g', column: '_e__g', type: null}
+								{prop: 'f', column: '_e__f', type: null, default: undefined},
+								{prop: 'g', column: '_e__g', type: null, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -257,7 +415,8 @@ describe('NestHydrationJS', function () {
 							ownProp: 'e',
 							isOneOfMany: true,
 							cache: {},
-							containingIdUsage: {}
+							containingIdUsage: {},
+							default: null
 						}
 					}
 				};
@@ -291,7 +450,7 @@ describe('NestHydrationJS', function () {
 		describe('malformed mapping, base array should not have a multiple items as there can only be one root to the datastructure', function () {
 			var error;
 			beforeEach(function () {
-				// bad formating, doesn't even make sense really
+				// bad formatting, doesn't even make sense really
 				var mapping = [
 					{a: 'rootA_'},
 					{b: 'rootB_'}

@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Changelog
 - Custom types
+- Default values
 
 ## [0.2.13] - 2016-06-06
 ### Added
