@@ -2,6 +2,8 @@ NestHydrationJS
 ===============
 [![Build Status](https://travis-ci.org/CoursePark/NestHydrationJS.svg?branch=master)](https://travis-ci.org/CoursePark/NestHydrationJS)
 [![Coverage Status](https://coveralls.io/repos/CoursePark/NestHydration/badge.svg?branch=master&service=github)](https://coveralls.io/github/CoursePark/NestHydration?branch=master)
+[![Dependency Status](https://david-dm.org/CoursePark/NestHydrationJS.svg)](https://david-dm.org/CoursePark/NestHydrationJS)
+[![NPM version](https://img.shields.io/npm/v/nesthydrationjs.svg)](https://www.npmjs.com/package/nesthydrationjs)
 
 Converts tabular data into a nested object/array structure based on a definition object or specially named columns.
 
@@ -12,9 +14,9 @@ Tabular Data With Definition
 var NestHydrationJS = require('nesthydrationjs');
 var table = [
 	{
-		id: '1', title: 'Tabular to Objects', required: '1',,
+		id: '1', title: 'Tabular to Objects', required: '1',
 		teacher_id: '1', teacher_name: 'David',
-		lesson_id: '1', lesson_title: 'Defintions'
+		lesson_id: '1', lesson_title: 'Definitions'
 	},
 	{
 		id: '1', title: 'Tabular to Objects', required: '1',
@@ -150,7 +152,7 @@ result = NestHydrationJS.nest(table);
 /* result would be the following:
 [
 	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 1, title: 'Defintions'},
+		{id: 1, title: 'Definitions'},
 		{id: 2, title: 'Table Data'},
 		{id: 3, title: 'Objects'}
 	]},
@@ -162,6 +164,69 @@ result = NestHydrationJS.nest(table);
 	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: [
 		{id: 5, title: 'Non Array Input'},
 	]}
+]
+*/
+```
+
+Custom Type Definition
+----------------------
+
+### As a custom type
+
+New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback
+function that takes the cell value, column name and the full row data.
+
+#### Example Usage
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+NestHydrationJS.registerType('CUSTOM_TYPE', function(value, name, row) {
+	return '::' + value + '::';
+});
+
+var table = [
+	{
+		id: 1, title: 'Custom Data Types'
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', type: 'CUSTOM_TYPE'},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: '::Custom Data Types::'}
+]
+*/
+```
+
+### Type as a function
+
+You can also define the type of a column in the definition object as a function and that function will be called for each
+value provided. The arguments passed are the same as those passed to a custom type handler. This allows formatting of a 
+type without defining it as a global type.
+
+#### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+
+var table = [
+	{
+		id: 1, title: 'Custom Data Types'
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', type: function(value, name, row) {
+		return '::' + value + '::';
+	}},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: '::Custom Data Types::'}
 ]
 */
 ```

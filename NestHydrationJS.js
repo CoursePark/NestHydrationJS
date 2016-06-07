@@ -11,6 +11,15 @@ NestHydrationJS.types = {
 	BOOLEAN: 'BOOLEAN'
 };
 
+NestHydrationJS.typeHandlers = {
+	NUMBER: function(cellValue) {
+		return parseFloat(cellValue);
+	},
+	BOOLEAN: function(cellValue) {
+		return cellValue == true;
+	}
+};
+
 /* Creates a data structure containing nested objects and/or arrays from
  * tabular data based on a structure definition provided by
  * structPropToColumnMap. If structPropToColumnMap is not provided but
@@ -75,7 +84,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 	
 	// defines function that can be called recursively
 	_nest = function (row, idColumn) {
-		var value, objMeta, obj, k, containingId, container, cellValue;
+		var value, objMeta, obj, k, containingId, container, cell, cellValue, valueTypeFunction;
 		
 		value = row[idColumn];
 		
@@ -111,19 +120,21 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			
 			// copy in properties from table data
 			for (k = 0; k < objMeta.valueList.length; k++) {
+				cell = objMeta.valueList[k];
 				cellValue = row[objMeta.valueList[k].column];
-				
+
 				if (cellValue !== null) {
-					if (objMeta.valueList[k].type === NestHydrationJS.types.NUMBER) {
-						// caste to float
-						cellValue = parseFloat(cellValue);
-					} else if (objMeta.valueList[k].type === NestHydrationJS.types.BOOLEAN) {
-						// caste to boolean
-						cellValue = cellValue == true;
+					if (_.isFunction(cell.type)) {
+						valueTypeFunction = cell.type;
+					} else {
+						valueTypeFunction = NestHydrationJS.typeHandlers[cell.type];
+					}
+					if (valueTypeFunction) {
+						cellValue = valueTypeFunction(cellValue, cell.column, row);
 					}
 				}
 				
-				obj[objMeta.valueList[k].prop] = cellValue;
+				obj[cell.prop] = cellValue;
 			}
 			
 			// initialize empty to-many relations, they will be populated when
@@ -369,6 +380,15 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 	}
 	
 	return propertyMapping.base;
+};
+
+/* Registers a custom type handler */
+NestHydrationJS.registerType = function (name, handler) {
+	if (NestHydrationJS.typeHandlers[name]) {
+		throw new Error('Handler with type, ' + name + ', already exists');
+	}
+
+	NestHydrationJS.typeHandlers[name] = handler;
 };
 
 module.exports = NestHydrationJS;
