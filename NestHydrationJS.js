@@ -87,15 +87,18 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		var value, objMeta, obj, k, containingId, container, cell, cellValue, valueTypeFunction;
 		
 		value = row[idColumn];
-		
-		if (value === null) {
-			// nothing to build
-			return;
-		}
-		
+
 		// only really concerned with the meta data for this identity column
 		objMeta = meta.idMap[idColumn];
-		
+
+		if (value === null) {
+			if (objMeta.default !== null && typeof objMeta.default !== 'undefined') {
+				value = objMeta.default;
+			} else {
+				return;
+			}
+		}
+
 		if (typeof objMeta.cache[value] !== 'undefined') {
 			// object already exists in cache
 			if (objMeta.containingIdUsage === null) {
@@ -121,8 +124,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 			// copy in properties from table data
 			for (k = 0; k < objMeta.valueList.length; k++) {
 				cell = objMeta.valueList[k];
-				cellValue = row[objMeta.valueList[k].column];
-
+				cellValue = row[cell.column];
 				if (cellValue !== null) {
 					if (_.isFunction(cell.type)) {
 						valueTypeFunction = cell.type;
@@ -132,18 +134,20 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 					if (valueTypeFunction) {
 						cellValue = valueTypeFunction(cellValue, cell.column, row);
 					}
+				} else if (typeof cell.default !== 'undefined') {
+					cellValue = cell.default;
 				}
 				
 				obj[cell.prop] = cellValue;
 			}
 			
 			// initialize empty to-many relations, they will be populated when
-			// those objects build themselve and find this containing object
+			// those objects build themselves and find this containing object
 			for (k = 0; k < objMeta.toManyPropList.length; k++) {
 				obj[objMeta.toManyPropList[k]] = [];
 			}
 			
-			// intialize null to-one relations and then recursively build them
+			// initialize null to-one relations and then recursively build them
 			for (k = 0; k < objMeta.toOneList.length; k++) {
 				obj[objMeta.toOneList[k].prop] = null;
 				_nest(row, objMeta.toOneList[k].column);
@@ -220,11 +224,8 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		}
 		
 		idProp = propList[0];
-		idColumn = structPropToColumnMap[idProp].column
-			? structPropToColumnMap[idProp].column
-			: structPropToColumnMap[idProp]
-		;
-		
+		idColumn = structPropToColumnMap[idProp].column || structPropToColumnMap[idProp];
+
 		if (isOneOfMany) {
 			meta.primeIdColumnList.push(idColumn);
 		}
@@ -237,7 +238,8 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 			ownProp: ownProp,
 			isOneOfMany: isOneOfMany === true,
 			cache: {},
-			containingIdUsage: containingColumn === null ? null : {}
+			containingIdUsage: containingColumn === null ? null : {},
+			default: typeof structPropToColumnMap[idProp].default === 'undefined' ? null : structPropToColumnMap[idProp].default
 		};
 		
 		for (i = 0; i < propList.length; i++) {
@@ -247,14 +249,16 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 				objMeta.valueList.push({
 					prop: prop,
 					column: structPropToColumnMap[prop],
-					type: null
+					type: null,
+					default: undefined
 				});
 			} else if (structPropToColumnMap[prop].column) {
 				// value property
 				objMeta.valueList.push({
 					prop: prop,
 					column: structPropToColumnMap[prop].column,
-					type: structPropToColumnMap[prop].type
+					type: structPropToColumnMap[prop].type,
+					default: structPropToColumnMap[prop].default
 				});
 			} else if (_.isArray(structPropToColumnMap[prop])) {
 				// list of objects / to-many relation
@@ -296,7 +300,7 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		if (structPropToColumnMap.length !== 1) {
 			throw new Error('invalid structPropToColumnMap format - can not have multiple roots for structPropToColumnMap, if an array it must only have one item');
 		}
-		// call with first object, but inform _buidMeta it is an array
+		// call with first object, but inform _buildMeta it is an array
 		_buildMeta(structPropToColumnMap[0], true, null, null);
 	} else if (_.isPlainObject(structPropToColumnMap)) {
 		// register first column as prime id column

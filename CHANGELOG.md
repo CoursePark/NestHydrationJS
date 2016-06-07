@@ -2,10 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2016-06-07
 ### Added
 - Changelog
 - Custom types
+- Default values
 
 ## [0.2.13] - 2016-06-06
 ### Added
