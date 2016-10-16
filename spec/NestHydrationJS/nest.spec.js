@@ -181,7 +181,7 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('simple mapping, custom type', function () {
 			var result;
 			beforeAll(function() {
@@ -199,13 +199,13 @@ describe('NestHydrationJS', function () {
 			afterAll(function() {
 				delete NestHydrationJS.typeHandlers.CUSTOM_TYPE;
 			});
-
+			
 			it('should match expected structure', function () {
 				var expected = {a: '::value::'};
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('simple mapping, with default', function () {
 			var result;
 			beforeEach(function () {
@@ -215,13 +215,13 @@ describe('NestHydrationJS', function () {
 				var data = {a: null};
 				result = NestHydrationJS.nest(data, mapping);
 			});
-
+			
 			it('should match expected structure', function () {
 				var expected = {a: 'a_default'};
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('simple mapping, function type', function () {
 			var result;
 			beforeEach(function () {
@@ -233,13 +233,13 @@ describe('NestHydrationJS', function () {
 				var data = {a: 'value'};
 				result = NestHydrationJS.nest(data, mapping);
 			});
-
+			
 			it('should match expected structure', function () {
 				var expected = {a: '::value::'};
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('simple mapping, redundant data', function () {
 			var result;
 			beforeEach(function () {
@@ -272,7 +272,7 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('multiple mapping, with default', function () {
 			var result;
 			beforeEach(function () {
@@ -283,7 +283,7 @@ describe('NestHydrationJS', function () {
 				var data = {a: null, b: null};
 				result = NestHydrationJS.nest(data, mapping);
 			});
-
+			
 			it('should match expected structure', function () {
 				var expected = {a: 'a_default', b: 'b_default'};
 				expect(result).toEqual(expected);
@@ -326,6 +326,56 @@ describe('NestHydrationJS', function () {
 					{a: 'value 1', b: 'value 2'},
 					{a: 'value 3', b: 'value 4'},
 					{a: 'value 5', b: 'value 6'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array with id column', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', id: true},
+					b: 'b'
+				}];
+				var data = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a1', b: 'value b2'},
+					{a: 'value a2', b: 'value b1'},
+					{a: 'value a2', b: 'value b2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a2', b: 'value b1'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('multiple mapping array with id column not being the first', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: 'a',
+					b: {column: 'b', id: true}
+				}];
+				var data = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a1', b: 'value b2'},
+					{a: 'value a2', b: 'value b1'},
+					{a: 'value a2', b: 'value b2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a1', b: 'value b2'}
 				];
 				expect(result).toEqual(expected);
 			});
@@ -418,7 +468,115 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
+		describe('hinted mapping, id type unspecified, first column should be used as id', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a: 1, _b__c: 'c1'},
+					{_a: 1, _b__c: 'c2'},
+					{_a: 2, _b__c: 'c3'},
+					{_a: 2, _b__c: 'c4'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 1, b: [
+						{c: 'c1'},
+						{c: 'c2'}
+					]},
+					{a: 2, b: [
+						{c: 'c3'},
+						{c: 'c4'}
+					]}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, id type specified on first column, should be used', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a___ID: 1, _b__c: 'c1'},
+					{_a___ID: 1, _b__c: 'c2'},
+					{_a___ID: 2, _b__c: 'c3'},
+					{_a___ID: 2, _b__c: 'c4'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 1, b: [
+						{c: 'c1'},
+						{c: 'c2'}
+					]},
+					{a: 2, b: [
+						{c: 'c3'},
+						{c: 'c4'}
+					]}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, id type specified on other column, should be used', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a__c: 'c1', _b___ID: 1},
+					{_a__c: 'c2', _b___ID: 1},
+					{_a__c: 'c3', _b___ID: 2},
+					{_a__c: 'c4', _b___ID: 2}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{b: 1, a: [
+						{c: 'c1'},
+						{c: 'c2'}
+					]},
+					{b: 2, a: [
+						{c: 'c3'},
+						{c: 'c4'}
+					]}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('hinted mapping, id type specified on other column, used with number type', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a__c: 'c1', _b___NUMBER___ID: '1'},
+					{_a__c: 'c2', _b___NUMBER___ID: '1'},
+					{_a__c: 'c3', _b___NUMBER___ID: '2'},
+					{_a__c: 'c4', _b___NUMBER___ID: '2'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{b: 1, a: [
+						{c: 'c1'},
+						{c: 'c2'}
+					]},
+					{b: 2, a: [
+						{c: 'c3'},
+						{c: 'c4'}
+					]}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, to one, custom type', function () {
 			var result;
 			beforeAll(function() {
@@ -435,7 +593,7 @@ describe('NestHydrationJS', function () {
 			afterAll(function() {
 				delete NestHydrationJS.typeHandlers.CUSTOM_TYPE;
 			});
-
+			
 			it('should match expected structure', function () {
 				var expected = [
 					{id: '1', a: {id: 1}},
@@ -445,7 +603,7 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-
+		
 		describe('hinted mapping, to one, integer id', function () {
 			var result;
 			beforeEach(function () {
@@ -743,7 +901,7 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-		describe('Flatish With reused structure and some not', function () {
+		describe('Flatish with reused structure and some not', function () {
 			var result;
 			beforeEach(function () {
 				var table = [

@@ -85,13 +85,13 @@ result = NestHydrationJS.nest(table, definition);
 SQL-ish Example
 ---------------
 
-While not limited to SQL, it is common to want to define an SQL query and then just get back objects. Here's how.
+While not limited to SQL, it is common to want to define an SQL query and then just get back objects.
 
-In the following example you can see the same result but the definition of the object structure is contained in the column names of the tabular input. Nesting is achieved by using a underscore (_). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
+In the following example you can see the same result but the definition of the object structure is contained in the column names of the tabular input. Nesting is achieved by using a underscore (`_`). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
 
-If a column alias ends in a triple underscore followed by either NUMBER or BOOLEAN then the values in those columns in the result data will be caste to the respective type unless the value is null.
+If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns in the result data will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is a id propery of that level of object. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
 
-**Note:** that this means that almost always bottom level properties will be prefixed with a underscore, as this is actually a *x to many* relation from the variable returned from the next function. If 
+**Note:** that this means that almost always base level properties will be prefixed with a underscore, as this is actually a *x to many* relation from the variable returned from the `nest` function.
 
 ```javascript
 var sql = ''
@@ -101,8 +101,8 @@ var sql = ''
 	+ 'c.requried  AS _required___BOOLEAN,'
 	+ 't.teacher   AS _teacher_id___NUMBER,'
 	+ 't.name      AS _teacher_name,'
-	+ 'l.id        AS _lesson__id___NUMBER,'
 	+ 'l.title     AS _lesson__title'
+	+ 'l.id        AS _lesson__id___NUMBER___ID,'
 	+ 'FROM course AS c'
 	+ 'JOIN teacher AS t ON t.id = c.teacher_id'
 	+ 'JOIN course_lesson AS cl ON cl.course_id = c.id'
@@ -114,37 +114,37 @@ var table = db.fetchAll(sql);
 	{
 		_id: '1', _title: 'Tabular to Objects', _required: '1',
 		_teacher_id: '1', _teacher_name: 'David',
-		_lesson__id: '1', _lesson__title: 'Defintions'
+		_lesson__title: 'Defintions', _lesson__id: '1'
 	},
 	{
 		_id: '1', _title: 'Tabular to Objects', _required: '1',
 		_teacher_id: '1', _teacher_name: 'David',
-		_lesson__id: '2', _lesson__title: 'Table Data'
+		_lesson__title: 'Table Data', _lesson__id: '2'
 	},
 	{
 		_id: '1', _title: 'Tabular to Objects', _required: '1',
 		_teacher_id: '1', _teacher_name: 'David',
-		_lesson__id: '3', _lesson__title: 'Objects'
+		_lesson__title: 'Objects', _lesson__id: '3'
 	},
 	{
 		_id: '2', _title: 'Column Names Define Structure', _required: '0',
 		_teacher_id: '2', _teacher_name: 'Chris',
-		_lesson__id: '4', _lesson__title: 'Column Names'
+		_lesson__title: 'Column Names', _lesson__id: '4'
 	},
 	{
 		_id: '2', _title: 'Column Names Define Structure', _required: '0',
 		_teacher_id: '2', _teacher_name: 'Chris',
-		_lesson__id: '2', _lesson__title: 'Table Data'
+		_lesson__title: 'Table Data', _lesson__id: '2'
 	},
 	{
 		_id: '2', _title: 'Column Names Define Structure', _required: '0',
 		_teacher_id: '2', _teacher_name: 'Chris',
-		_lesson__id: '3', _lesson__title: 'Objects'
+		_lesson__title: 'Objects', _lesson__id: '3'
 	},
 	{
 		_id: '3', _title: 'Object On Bottom', _required: '0',
 		_teacher_id: '1', _teacher_name: 'David',
-		_lesson__id: '5', _lesson__title: 'Non Array Input'
+		_lesson__title: 'Non Array Input', _lesson__id: '5'
 	}
 ]
 */
@@ -171,8 +171,7 @@ result = NestHydrationJS.nest(table);
 Default Values
 --------------
 
-You can specify a default value for a property by specifying the `default` property in the definition object. The value
-of the property will be replaced with the default value when it's row data is `null`.
+You can specify a default value for a property by specifying the `default` property in the definition object. The value of the property will be replaced with the default value when it's row data is `null`.
 
 ### Example
 
@@ -196,13 +195,53 @@ result = NestHydrationJS.nest(table, definition);
 */
 ```
 
+Ids That Aren't First In Definition Properties
+----------------------------------------------
+
+It is possible to specify an id column for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple properties for an object are specified to be ids only the first will be used.
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs');
+
+var table = [
+	{bookTitle: 'Anathem', bookId: 1, authorId: 1, authorName: 'Neal Stephenson'},
+	{bookTitle: 'Seveneves', bookId: 2, authorId: 1, authorName: 'Neal Stephenson'}
+];
+var definition = [{
+	name: {column: 'authorName'},
+	id: {column: 'authorId', id: true},
+	books: [{
+		title: {column: 'bookTitle'},
+		id: {column: 'bookId', id: true}
+	}]
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{
+		"name": "Neal Stephenson",
+		"id": 1,
+		"books": [
+			{
+				"title": "Anathem",
+				"id": 1
+			},
+			{
+				"title": "Seveneves",
+				"id": 2
+			}
+		]
+	}
+]
+*/
+```
+
 Custom Type Definition
 ----------------------
 
 ### As a custom type
 
-New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback
-function that takes the cell value, column name and the full row data.
+New types can be registered using the `registerType(name, handler)` function. `handler(cellValue, name, row)` is a callback function that takes the cell value, column name and the full row data.
 
 #### Example Usage
 
@@ -231,9 +270,7 @@ result = NestHydrationJS.nest(table, definition);
 
 ### Type as a function
 
-You can also define the type of a column in the definition object as a function and that function will be called for each
-value provided. The arguments passed are the same as those passed to a custom type handler. This allows formatting of a 
-type without defining it as a global type.
+You can also define the type of a column in the definition object as a function and that function will be called for each value provided. The arguments passed are the same as those passed to a custom type handler. This allows formatting of a type without defining it as a global type.
 
 #### Example
 

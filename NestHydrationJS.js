@@ -87,10 +87,10 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 		var value, objMeta, obj, k, containingId, container, cell, cellValue, valueTypeFunction;
 		
 		value = row[idColumn];
-
+		
 		// only really concerned with the meta data for this identity column
 		objMeta = meta.idMap[idColumn];
-
+		
 		if (value === null) {
 			if (objMeta.default !== null && typeof objMeta.default !== 'undefined') {
 				value = objMeta.default;
@@ -98,7 +98,7 @@ NestHydrationJS.nest = function (data, structPropToColumnMap) {
 				return;
 			}
 		}
-
+		
 		if (typeof objMeta.cache[value] !== 'undefined') {
 			// object already exists in cache
 			if (objMeta.containingIdUsage === null) {
@@ -223,9 +223,20 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 			throw new Error('invalid structPropToColumnMap format - property \'' + ownProp + '\' can not be an empty array');
 		}
 		
-		idProp = propList[0];
+		for (i = 0; i < propList.length; i++) {
+			prop = propList[i];
+			if (structPropToColumnMap[prop].id === true) {
+				idProp = prop;
+				break;
+			}
+		}
+		
+		if (idProp === undefined) {
+			idProp = propList[0];
+		}
+		
 		idColumn = structPropToColumnMap[idProp].column || structPropToColumnMap[idProp];
-
+		
 		if (isOneOfMany) {
 			meta.primeIdColumnList.push(idColumn);
 		}
@@ -327,7 +338,7 @@ NestHydrationJS.buildMeta = function (structPropToColumnMap) {
  * is not specified.
  */
 NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
-	var propertyMapping, prop, i, columnType, type, column, pointer, navList, j, nav, renamedColumn;
+	var propertyMapping, prop, i, columnType, type, isId, column, pointer, navList, j, nav, renamedColumn;
 	
 	if (typeof renameMapping === 'undefined') {
 		renameMapping = {};
@@ -340,10 +351,15 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 		
 		columnType = column.split('___');
 		
-		type = columnType.length > 1
-			? columnType[1]
-			: null
-		;
+		type = null;
+		isId = false;
+		for (j = 1; j < columnType.length; j++) {
+			if (columnType[j] === 'ID') {
+				isId = true;
+			} else if (typeof NestHydrationJS.typeHandlers[columnType[j]] !== 'undefined') {
+				type = columnType[j];
+			}
+		}
 		
 		pointer = propertyMapping; // point to base on each new column
 		prop = 'base';
@@ -368,9 +384,17 @@ NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, ren
 						? column
 						: renameMapping[column]
 					;
+					if (type !== null || isId) {
+						// no longer a simple mapping, has need of the type or id properties
+						renamedColumn = {column: renamedColumn};
+					}
 					if (type !== null) {
 						// detail the type in the column map if type provided
-						renamedColumn = {column: renamedColumn, type: type};
+						renamedColumn.type = type;
+					}
+					if (isId) {
+						// set the id property in the column map
+						renamedColumn.id = true;
 					}
 					pointer[prop][nav] = j === (navList.length - 1)
 						? renamedColumn // is leaf node, store full column string
