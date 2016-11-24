@@ -1,6 +1,7 @@
 'use strict';
 
-var NestHydrationJS = require('../../NestHydrationJS');
+var nestHydrationJS = require('../../NestHydrationJS');
+var NestHydrationJS = nestHydrationJS();
 
 describe('NestHydrationJS', function () {
 	describe('structPropToColumnMapFromColumnHints method', function () {
