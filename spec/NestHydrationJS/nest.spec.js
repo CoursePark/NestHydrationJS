@@ -1,7 +1,6 @@
 'use strict';
 
-var nestHydrationJS = require('../../NestHydrationJS');
-var NestHydrationJS = nestHydrationJS();
+var NestHydrationJS = require('../../NestHydrationJS')();
 
 describe('NestHydrationJS', function () {
 	describe('nest method', function () {
