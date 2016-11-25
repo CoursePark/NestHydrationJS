@@ -11,7 +11,7 @@ Tabular Data With Definition
 ----------------------------
 
 ```javascript
-var NestHydrationJS = require('nesthydrationjs');
+var NestHydrationJS = require('nesthydrationjs')();
 var table = [
 	{
 		id: '1', title: 'Tabular to Objects', required: '1',
@@ -176,7 +176,7 @@ You can specify a default value for a property by specifying the `default` prope
 ### Example
 
 ```javascript
-var NestHydrationJS = require('nesthydrationjs');
+var NestHydrationJS = require('nesthydrationjs')();
 
 var table = [
 	{
@@ -201,7 +201,7 @@ Ids That Aren't First In Definition Properties
 It is possible to specify an id column for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple properties for an object are specified to be ids only the first will be used.
 
 ```javascript
-var NestHydrationJS = require('nesthydrationjs');
+var NestHydrationJS = require('nesthydrationjs')();
 
 var table = [
 	{bookTitle: 'Anathem', bookId: 1, authorId: 1, authorName: 'Neal Stephenson'},
@@ -246,7 +246,7 @@ New types can be registered using the `registerType(name, handler)` function. `h
 #### Example Usage
 
 ```javascript
-var NestHydrationJS = require('nesthydrationjs');
+var NestHydrationJS = require('nesthydrationjs')();
 NestHydrationJS.registerType('CUSTOM_TYPE', function(value, name, row) {
 	return '::' + value + '::';
 });
@@ -275,7 +275,7 @@ You can also define the type of a column in the definition object as a function 
 #### Example
 
 ```javascript
-var NestHydrationJS = require('nesthydrationjs');
+var NestHydrationJS = require('nesthydrationjs')();
 
 var table = [
 	{
