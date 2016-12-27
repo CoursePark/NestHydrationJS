@@ -7,11 +7,14 @@ NestHydrationJS
 
 Converts tabular data into a nested object/array structure based on a definition object or specially named columns.
 
-Tabular Data With Definition
-----------------------------
+Tabular Data With Definition Object
+===================================
 
+Tabular data is considered to be an array of objects where each object represents a row and the properties of those objects are cell values with the keys representing the column names.
+
+Tabular Data
+------------
 ```javascript
-var NestHydrationJS = require('nesthydrationjs')();
 var table = [
 	{
 		id: '1', title: 'Tabular to Objects', required: '1',
@@ -49,6 +52,15 @@ var table = [
 		lesson_id: '5', lesson_title: 'Non Array Input'
 	}
 ];
+```
+
+Above are 7 rows each with the cells data for the columns `id`, `title`, `required`, `teacher_id`, `teacher_name`, `lesson_id`, `lesson_title`.
+
+Mapping from the property keys of the tabular data to nested objects is done in accordance to the definition object.
+
+Definition
+----------
+```javascript
 var definition = [{
 	id: {column: 'id', type: 'NUMBER'},
 	title: 'title',
@@ -62,8 +74,28 @@ var definition = [{
 		title: 'lesson_title'
 	}]
 }];
+```
+
+The definition object above maps:
+
+- `id` to `result[#].id` with a type caste to a number
+- `title` to `result[#].title`
+- `required` to `result[#].required` with a type caste to a boolean
+- `teacher_id` to `result[#].teacher.id` with a type caste to a number
+- `teacher_name` to `result[#].teacher.name`
+- `lesson_id` to `result[#].lesson[#].id` with a type caste to a number
+- `lesson_title` to `result[#].lesson[#].title`
+
+Transformation
+--------------
+```javascript
+var NestHydrationJS = require('nesthydrationjs')();
 result = NestHydrationJS.nest(table, definition);
-/* result would be the following:
+```
+
+Result
+------
+```javascript
 [
 	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: [
 		{id: 1, title: 'Defintions'},
@@ -76,23 +108,26 @@ result = NestHydrationJS.nest(table, definition);
 		{id: 3, title: 'Objects'}
 	]},
 	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 5, title: 'Non Array Input'},
+		{id: 5, title: 'Non Array Input'}
 	]}
 ]
-*/
 ```
 
 SQL-ish Example
----------------
+===============
 
-While not limited to SQL, it is common to want to define an SQL query and then just get back objects.
+It is common to want to define an SQL query and then just get back objects. NestHydrationJS was created with this in mind.
 
-In the following example you can see the same result but the definition of the object structure is contained in the column names of the tabular input. Nesting is achieved by using a underscore (`_`). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
+The following example gives same result as above but a column naming convention is used instead of a definition object.
 
-If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns in the result data will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is a id propery of that level of object. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
+Nesting is achieved by using a underscore (`_`). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
+
+If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is an id propery of that level of object. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
 
 **Note:** that this means that almost always base level properties will be prefixed with a underscore, as this is actually a *x to many* relation from the variable returned from the `nest` function.
 
+Query
+-----
 ```javascript
 var sql = ''
 	+ 'SELECT'
@@ -108,8 +143,14 @@ var sql = ''
 	+ 'JOIN course_lesson AS cl ON cl.course_id = c.id'
 	+ 'JOIN lesson AS l ON l.id = cl.lesson_id'
 ;
+```
+
+For this example the following query produces the following tabular data.
+
+**Note** that this is the same cell values as the `Tabular Data With Definition Object` example above but with different column names.
+
+```javascript
 var table = db.fetchAll(sql);
-/* table could result in the following:
 [
 	{
 		_id: '1', _title: 'Tabular to Objects', _required: '1',
@@ -147,9 +188,21 @@ var table = db.fetchAll(sql);
 		_lesson__title: 'Non Array Input', _lesson__id: '5'
 	}
 ]
-*/
+```
+
+Transformation
+--------------
+```javascript
+var NestHydrationJS = require('nesthydrationjs')();
 result = NestHydrationJS.nest(table);
-/* result would be the following:
+```
+
+Result
+------
+
+**Note** this is the same output as the `Tabular Data With Definition Object` example above.
+
+```javascript
 [
 	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: [
 		{id: 1, title: 'Definitions'},
@@ -162,38 +215,13 @@ result = NestHydrationJS.nest(table);
 		{id: 3, title: 'Objects'}
 	]},
 	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 5, title: 'Non Array Input'},
+		{id: 5, title: 'Non Array Input'}
 	]}
 ]
-*/
 ```
 
-Default Values
---------------
-
-You can specify a default value for a property by specifying the `default` property in the definition object. The value of the property will be replaced with the default value when it's row data is `null`.
-
-### Example
-
-```javascript
-var NestHydrationJS = require('nesthydrationjs')();
-
-var table = [
-	{
-		id: 1, title: null
-	}
-];
-var definition = [{
-	id: 'id'
-	title: {column: 'title', default: 'my default'},
-}];
-result = NestHydrationJS.nest(table, definition);
-/* result would be the following:
-[
-	{id: 1, title: 'my default'}
-]
-*/
-```
+Additional Definition Object Capabilities
+=========================================
 
 Ids That Aren't First In Definition Properties
 ----------------------------------------------
@@ -232,6 +260,33 @@ result = NestHydrationJS.nest(table, definition);
 			}
 		]
 	}
+]
+*/
+```
+
+Default Values
+--------------
+
+You can specify a default value for a property by specifying the `default` property in the definition object. The value of the property will be replaced with the default value when it's row data is `null`.
+
+### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs')();
+
+var table = [
+	{
+		id: 1, title: null
+	}
+];
+var definition = [{
+	id: 'id'
+	title: {column: 'title', default: 'my default'},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{id: 1, title: 'my default'}
 ]
 */
 ```
