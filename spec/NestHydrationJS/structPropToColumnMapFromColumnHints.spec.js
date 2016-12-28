@@ -67,6 +67,57 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed single direct property as columnList, id column', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ID'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ID', id: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed single direct property as columnList, id column and typed', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ID___NUMBER'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ID___NUMBER', type: 'NUMBER', id: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed single direct property as columnList, id column and typed, reverse order', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___NUMBER___ID'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___NUMBER___ID', type: 'NUMBER', id: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed single direct property as columnList, renamed', function () {
 			var result;
 			beforeEach(function () {

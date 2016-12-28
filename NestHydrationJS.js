@@ -13,10 +13,10 @@ function nestHydrationJS() {
 	};
 	
 	NestHydrationJS.typeHandlers = {
-		NUMBER: function(cellValue) {
+		NUMBER: function (cellValue) {
 			return parseFloat(cellValue);
 		},
-		BOOLEAN: function(cellValue) {
+		BOOLEAN: function (cellValue) {
 			return cellValue == true;
 		}
 	};

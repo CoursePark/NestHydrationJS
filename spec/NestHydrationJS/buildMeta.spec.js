@@ -284,6 +284,40 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('multiple mapping array, id being non first', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: '_a',
+					b: {column: '_b', id: true}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_b'],
+					idMap: {
+						_b: {
+							valueList: [
+								{prop: 'a', column: '_a', type: null, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							default: null
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('multiple mapping array with id having type', function () {
 			var result;
 			beforeEach(function () {
