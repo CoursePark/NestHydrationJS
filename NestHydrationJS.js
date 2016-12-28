@@ -1,18 +1,17 @@
 'use strict';
 
 function nestHydrationJS() {
-
 	var NestHydrationJS, _;
-
+	
 	_ = require('lodash');
-
+	
 	NestHydrationJS = {};
-
+	
 	NestHydrationJS.types = {
 		NUMBER: 'NUMBER',
 		BOOLEAN: 'BOOLEAN'
 	};
-
+	
 	NestHydrationJS.typeHandlers = {
 		NUMBER: function(cellValue) {
 			return parseFloat(cellValue);
@@ -21,11 +20,11 @@ function nestHydrationJS() {
 			return cellValue == true;
 		}
 	};
-
+	
 	/* Creates a data structure containing nested objects and/or arrays from
 	 * tabular data based on a structure definition provided by
 	 * structPropToColumnMap. If structPropToColumnMap is not provided but
-	 * the data has column names that follow a particular convention then nested
+	 * the data has column names that follow a particular convention then a
 	 * nested structures can also be created.
 	 */
 	NestHydrationJS.nest = function (data, structPropToColumnMap) {
@@ -207,7 +206,7 @@ function nestHydrationJS() {
 		
 		return struct;
 	};
-
+	
 	/* Create a data structure that contains lookups and cache spaces for quick
 	 * reference and action for the workings of the nest method.
 	 */
@@ -334,7 +333,7 @@ function nestHydrationJS() {
 		
 		return meta;
 	};
-
+	
 	/* Returns a property mapping data structure based on the names of columns
 	 * in columnList. Used internally by nest when its propertyMapping param
 	 * is not specified.
@@ -411,13 +410,13 @@ function nestHydrationJS() {
 		
 		return propertyMapping.base;
 	};
-
+	
 	/* Registers a custom type handler */
 	NestHydrationJS.registerType = function (name, handler) {
 		if (NestHydrationJS.typeHandlers[name]) {
 			throw new Error('Handler with type, ' + name + ', already exists');
 		}
-
+		
 		NestHydrationJS.typeHandlers[name] = handler;
 	};
 	return NestHydrationJS;
