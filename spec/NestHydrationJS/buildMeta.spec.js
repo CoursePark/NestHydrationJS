@@ -19,7 +19,7 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						aColumnName: {
 							valueList: [
-								{prop: 'a', column: 'aColumnName', type: null, default: undefined}
+								{prop: 'a', column: 'aColumnName', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -148,8 +148,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						a: {
 							valueList: [
-								{prop: 'a', column: 'a', type: null, default: undefined},
-								{prop: 'b', column: 'b', type: null, default: undefined}
+								{prop: 'a', column: 'a', type: undefined, default: undefined},
+								{prop: 'b', column: 'b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -183,7 +183,7 @@ describe('NestHydrationJS', function () {
 						_a: {
 							valueList: [
 								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -232,8 +232,8 @@ describe('NestHydrationJS', function () {
 						},
 						_id: {
 							valueList: [
-								{prop: 'id', column: '_id', type: null, default: undefined},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'id', column: '_id', type: undefined, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [{prop: 'a', column: '_c'}],
 							toManyPropList: [],
@@ -266,8 +266,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						_a: {
 							valueList: [
-								{prop: 'a', column: '_a', type: null, default: undefined},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'a', column: '_a', type: undefined, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -300,7 +300,7 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						_b: {
 							valueList: [
-								{prop: 'a', column: '_a', type: null, default: undefined},
+								{prop: 'a', column: '_a', type: undefined, default: undefined},
 								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [],
@@ -335,7 +335,7 @@ describe('NestHydrationJS', function () {
 						_a: {
 							valueList: [
 								{prop: 'a', column: '_a', type: 'NUMBER', default: undefined},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -369,7 +369,7 @@ describe('NestHydrationJS', function () {
 						_a: {
 							valueList: [
 								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -409,8 +409,8 @@ describe('NestHydrationJS', function () {
 					idMap: {
 						'_a': {
 							valueList: [
-								{prop: 'a', column: '_a', type: null, default: undefined},
-								{prop: 'b', column: '_b', type: null, default: undefined}
+								{prop: 'a', column: '_a', type: undefined, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
 							],
 							toOneList: [
 								{prop: 'c', column: '_c_d'}
@@ -427,7 +427,7 @@ describe('NestHydrationJS', function () {
 						},
 						'_c_d': {
 							valueList: [
-								{prop: 'd', column: '_c_d', type: null, default: undefined}
+								{prop: 'd', column: '_c_d', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -440,8 +440,8 @@ describe('NestHydrationJS', function () {
 						},
 						'_e__f': {
 							valueList: [
-								{prop: 'f', column: '_e__f', type: null, default: undefined},
-								{prop: 'g', column: '_e__g', type: null, default: undefined}
+								{prop: 'f', column: '_e__f', type: undefined, default: undefined},
+								{prop: 'g', column: '_e__g', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],

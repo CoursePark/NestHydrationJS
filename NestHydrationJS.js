@@ -261,7 +261,7 @@ function nestHydrationJS() {
 					objMeta.valueList.push({
 						prop: prop,
 						column: structPropToColumnMap[prop],
-						type: null,
+						type: undefined,
 						default: undefined
 					});
 				} else if (structPropToColumnMap[prop].column) {
