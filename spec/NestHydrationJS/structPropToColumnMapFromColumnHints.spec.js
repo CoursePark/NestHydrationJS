@@ -193,6 +193,42 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed multiple many relation properties as columnList, array trimmer specified', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_a',
+					'_b___TRIMMER'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [{
+					a: '_a',
+					b: {column: '_b___TRIMMER', trimmer: true}
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed single relation property as columnList, array trimmer specified', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_a___TRIMMER'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [{
+					a: {column: '_a___TRIMMER', trimmer: true}
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed 2nd level depth on simple properties as columnList', function () {
 			var result;
 			beforeEach(function () {

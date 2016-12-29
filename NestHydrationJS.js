@@ -28,7 +28,7 @@ function nestHydrationJS() {
 	 * nested structures can also be created.
 	 */
 	NestHydrationJS.nest = function (data, structPropToColumnMap) {
-		var listOnEmpty, table, meta, struct, i, row, j, _nest, primeIdColumn;
+		var listOnEmpty, table, meta, struct, i, row, j, _nest, primeIdColumn, arrObjectToArrValue;
 		
 		// VALIDATE PARAMS AND BASIC INITIALIZATION
 		
@@ -204,6 +204,29 @@ function nestHydrationJS() {
 			}
 		}
 		
+		// reduces an array of objects at a path to an array of values,
+		// where a property of those objects are the values
+		arrObjectToArrValue = function (struct, path, prop) {
+			var i;
+			
+			if (_.isArray(struct)) {
+				for (i = 0; i < struct.length; i++) {
+					if (path.length) {
+						arrObjectToArrValue(struct[i][path[0]], path.slice(1), prop);
+					} else {
+						struct[i] = struct[i][prop];
+					}
+				}
+			} else {
+				arrObjectToArrValue(struct[path[0]], path.slice(1), prop);
+			}
+		};
+		
+		// simplify any arrays of objects to arrays of values, based on the trimmers
+		for (i = 0; i < meta.trimmerList.length; i++) {
+			arrObjectToArrValue(struct, meta.trimmerList[i].path, meta.trimmerList[i].prop);
+		}
+		
 		return struct;
 	};
 	
@@ -212,7 +235,28 @@ function nestHydrationJS() {
 	 */
 	NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		// internally defines recursive function with extra param. This allows cleaner API
-		var meta, _buildMeta, primeIdColumn;
+		var _buildMeta, createMetaTrimmer, meta, primeIdColumn;
+		
+		// this data structure is populated by the _buildMeta function
+		meta = {
+			primeIdColumnList: [],
+			trimmerList: [],
+			idMap: {}
+		};
+		
+		createMetaTrimmer = function (containingColumn, prop) {
+			var trimmer = {
+				path: [],
+				prop: prop
+			};
+			
+			while (containingColumn !== null) {
+				trimmer.path.unshift(containingColumn);
+				containingColumn = meta.idMap[containingColumn].containingColumn;
+			}
+			
+			return trimmer;
+		};
 		
 		// recursive internal function
 		_buildMeta = function (structPropToColumnMap, isOneOfMany, containingColumn, ownProp) {
@@ -251,6 +295,7 @@ function nestHydrationJS() {
 				isOneOfMany: isOneOfMany === true,
 				cache: {},
 				containingIdUsage: containingColumn === null ? null : {},
+				trimmerProp: null,
 				default: typeof structPropToColumnMap[idProp].default === 'undefined' ? null : structPropToColumnMap[idProp].default
 			};
 			
@@ -272,6 +317,11 @@ function nestHydrationJS() {
 						type: structPropToColumnMap[prop].type,
 						default: structPropToColumnMap[prop].default
 					});
+					
+					if (structPropToColumnMap[prop].trimmer === true) {
+						objMeta.trimmerProp = prop;
+						meta.trimmerList.push(createMetaTrimmer(containingColumn, prop));
+					}
 				} else if (_.isArray(structPropToColumnMap[prop])) {
 					// list of objects / to-many relation
 					objMeta.toManyPropList.push(prop);
@@ -300,12 +350,6 @@ function nestHydrationJS() {
 			}
 			
 			meta.idMap[idColumn] = objMeta;
-		};
-		
-		// this data structure is populated by the _buildMeta function
-		meta = {
-			primeIdColumnList: [],
-			idMap: {}
 		};
 		
 		if (_.isArray(structPropToColumnMap)) {
@@ -339,7 +383,7 @@ function nestHydrationJS() {
 	 * is not specified.
 	 */
 	NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
-		var propertyMapping, prop, i, columnType, type, isId, column, pointer, navList, j, nav, renamedColumn;
+		var column, columnType, i, j, isId, isTrimmer, nav, navList, pointer, prop, propertyMapping, renamedColumn, type;
 		
 		if (typeof renameMapping === 'undefined') {
 			renameMapping = {};
@@ -354,9 +398,12 @@ function nestHydrationJS() {
 			
 			type = null;
 			isId = false;
+			isTrimmer = false;
 			for (j = 1; j < columnType.length; j++) {
 				if (columnType[j] === 'ID') {
 					isId = true;
+				} else if (columnType[j] === 'TRIMMER') {
+					isTrimmer = true;
 				} else if (typeof NestHydrationJS.typeHandlers[columnType[j]] !== 'undefined') {
 					type = columnType[j];
 				}
@@ -385,17 +432,20 @@ function nestHydrationJS() {
 							? column
 							: renameMapping[column]
 						;
-						if (type !== null || isId) {
+						if (type || isId || isTrimmer) {
 							// no longer a simple mapping, has need of the type or id properties
 							renamedColumn = {column: renamedColumn};
 						}
-						if (type !== null) {
+						if (type) {
 							// detail the type in the column map if type provided
 							renamedColumn.type = type;
 						}
 						if (isId) {
 							// set the id property in the column map
 							renamedColumn.id = true;
+						}
+						if (isTrimmer) {
+							renamedColumn.trimmer = true;
 						}
 						pointer[prop][nav] = j === (navList.length - 1)
 							? renamedColumn // is leaf node, store full column string
