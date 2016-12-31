@@ -30,7 +30,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -64,7 +64,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -98,7 +98,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -140,6 +140,188 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('simple mapping with id trimmer value', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', trimmer: true}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['a'],
+					trimmerList: [
+						{path: [], prop: 'a'}
+					],
+					idMap: {
+						a: {
+							valueList: [
+								{prop: 'a', column: 'a', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							trimmerProp: 'a',
+							default: undefined
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple mapping with multiple trimmer values in a single array, 2nd should be ignored', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', trimmer: true},
+					b: {column: 'b', trimmer: true}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['a'],
+					trimmerList: [
+						{path: [], prop: 'a'}
+					],
+					idMap: {
+						a: {
+							valueList: [
+								{prop: 'a', column: 'a', type: undefined, default: undefined},
+								{prop: 'b', column: 'b', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							trimmerProp: 'a',
+							default: undefined
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('nested mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: '_a',
+					b: [{
+						c: '_b__c'
+					}]
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_a', '_b__c'],
+					trimmerList: [],
+					idMap: {
+						'_a': {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [
+								'b'
+							],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							trimmerProp: null,
+							default: undefined
+						},
+						'_b__c': {
+							valueList: [
+								{prop: 'c', column: '_b__c', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: '_a',
+							ownProp: 'b',
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: {},
+							trimmerProp: null,
+							default: undefined
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('simple nested mapping with id trimmer value', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: '_a',
+					b: [{
+						c: {column: '_b__c', trimmer: true}
+					}]
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_a', '_b__c'],
+					trimmerList: [
+						{path: ['_a'], prop: 'c'}
+					],
+					idMap: {
+						'_a': {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [
+								'b'
+							],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							trimmerProp: null,
+							default: undefined
+						},
+						'_b__c': {
+							valueList: [
+								{prop: 'c', column: '_b__c', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: '_a',
+							ownProp: 'b',
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: {},
+							trimmerProp: 'c',
+							default: undefined
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('multiple mapping', function () {
 			var result;
 			beforeEach(function () {
@@ -168,7 +350,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -257,7 +439,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -293,7 +475,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -329,7 +511,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -365,7 +547,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						}
 					}
 				};
@@ -409,6 +591,44 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('multiple mapping array with trimmer on non id column', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: '_a',
+					b: {column: '_b', trimmer: true}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: ['_a'],
+					trimmerList: [
+						{path: [], prop: 'b'}
+					],
+					idMap: {
+						_a: {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							trimmerProp: 'b',
+							default: undefined
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('multiple mapping complex', function () {
 			var result;
 			beforeEach(function () {
@@ -420,7 +640,11 @@ describe('NestHydrationJS', function () {
 					},
 					e: [{
 						f: '_e__f',
-						g: '_e__g'
+						g: '_e__g',
+						h: [{
+							i: '_e__h__i',
+							j: {column: '_e__h__j', trimmer: true}
+						}]
 					}]
 				}];
 				result = NestHydrationJS.buildMeta(mapping);
@@ -428,8 +652,10 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a', '_e__f'],
-					trimmerList: [],
+					primeIdColumnList: ['_a', '_e__f', '_e__h__i'],
+					trimmerList: [
+						{path: ['_a', '_e__f', '_e__h__i'], prop: 'j'}
+					],
 					idMap: {
 						'_a': {
 							valueList: [
@@ -448,7 +674,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: null,
 							trimmerProp: null,
-							default: null
+							default: undefined
 						},
 						'_c_d': {
 							valueList: [
@@ -462,7 +688,7 @@ describe('NestHydrationJS', function () {
 							cache: {},
 							containingIdUsage: {},
 							trimmerProp: null,
-							default: null
+							default: undefined
 						},
 						'_e__f': {
 							valueList: [
@@ -470,14 +696,31 @@ describe('NestHydrationJS', function () {
 								{prop: 'g', column: '_e__g', type: undefined, default: undefined}
 							],
 							toOneList: [],
-							toManyPropList: [],
+							toManyPropList: [
+								'h'
+							],
 							containingColumn: '_a',
 							ownProp: 'e',
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: {},
 							trimmerProp: null,
-							default: null
+							default: undefined
+						},
+						'_e__h__i': {
+							valueList: [
+								{prop: 'i', column: '_e__h__i', type: undefined, default: undefined},
+								{prop: 'j', column: '_e__h__j', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: '_e__f',
+							ownProp: 'h',
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: {},
+							trimmerProp: 'j',
+							default: undefined
 						}
 					}
 				};

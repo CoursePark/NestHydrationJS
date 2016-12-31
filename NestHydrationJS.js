@@ -93,7 +93,7 @@ function nestHydrationJS() {
 			objMeta = meta.idMap[idColumn];
 			
 			if (value === null) {
-				if (objMeta.default !== null && typeof objMeta.default !== 'undefined') {
+				if (typeof objMeta.default !== 'undefined') {
 					value = objMeta.default;
 				} else {
 					return;
@@ -235,7 +235,7 @@ function nestHydrationJS() {
 	 */
 	NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		// internally defines recursive function with extra param. This allows cleaner API
-		var _buildMeta, createMetaTrimmer, meta, primeIdColumn;
+		var _buildMeta, createMetaTrimmer, meta, objMeta, objMetaKeyList, primeIdColumn;
 		
 		// this data structure is populated by the _buildMeta function
 		meta = {
@@ -296,7 +296,7 @@ function nestHydrationJS() {
 				cache: {},
 				containingIdUsage: containingColumn === null ? null : {},
 				trimmerProp: null,
-				default: typeof structPropToColumnMap[idProp].default === 'undefined' ? null : structPropToColumnMap[idProp].default
+				default: structPropToColumnMap[idProp].default
 			};
 			
 			for (i = 0; i < propList.length; i++) {
@@ -318,9 +318,8 @@ function nestHydrationJS() {
 						default: structPropToColumnMap[prop].default
 					});
 					
-					if (structPropToColumnMap[prop].trimmer === true) {
+					if (structPropToColumnMap[prop].trimmer === true && objMeta.trimmerProp === null) {
 						objMeta.trimmerProp = prop;
-						meta.trimmerList.push(createMetaTrimmer(containingColumn, prop));
 					}
 				} else if (_.isArray(structPropToColumnMap[prop])) {
 					// list of objects / to-many relation
@@ -373,6 +372,15 @@ function nestHydrationJS() {
 			
 			// construct the rest
 			_buildMeta(structPropToColumnMap, false, null, null);
+		}
+		
+		objMetaKeyList = _.keys(meta.idMap);
+		for (var i = 0; i < objMetaKeyList.length; i++) {
+			objMeta = meta.idMap[objMetaKeyList[i]];
+			
+			if (objMeta.trimmerProp) {
+				meta.trimmerList.push(createMetaTrimmer(objMeta.containingColumn, objMeta.trimmerProp));
+			}
 		}
 		
 		return meta;

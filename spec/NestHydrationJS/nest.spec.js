@@ -331,6 +331,27 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('multiple mapping with trimmer to produce value array', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: 'a',
+					b: {column: 'b', trimmer: true}
+				}];
+				var data = [
+					{a: '1', b: 'value A'},
+					{a: '1', b: 'value B'},
+					{a: '2', b: 'value C'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['value A', 'value C'];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('multiple mapping array with id column', function () {
 			var result;
 			beforeEach(function () {
