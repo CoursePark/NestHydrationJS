@@ -423,6 +423,23 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('hinted mapping, with trimmer', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_a: '1', _b___TRIMMER: 'value A'},
+					{_a: '1', _b___TRIMMER: 'value B'},
+					{_a: '2', _b___TRIMMER: 'value C'}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['value A', 'value C'];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('hinted mapping, to one', function () {
 			var result;
 			beforeEach(function () {
@@ -877,6 +894,75 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+		
+		describe('complex, with trimmers', function () {
+			var result;
+			beforeEach(function () {
+				var data = [
+					{_id: '1', _a__id: null, _a__a: null, _a__b__id___TRIMMER: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '1', _a__id: null, _a__a: null, _a__b__id___TRIMMER: null, _b_id: '1', _b_a: '1', _b_b__id: '2', _b_b__a: null},
+					{_id: '2', _a__id: '1',  _a__a: '1',  _a__b__id___TRIMMER: null, _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id___TRIMMER: '1',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id___TRIMMER: '2',  _b_id: '1', _b_a: '1', _b_b__id: '1', _b_b__a: '1'},
+					{_id: '2', _a__id: '2',  _a__a: '2',  _a__b__id___TRIMMER: '2',  _b_id: '1', _b_a: '1', _b_b__id: '2', _b_b__a: null}
+				];
+				result = NestHydrationJS.nest(data);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = [
+					{
+						id: '1',
+						a: [],
+						b: {
+							id: '1',
+							a: '1',
+							b: [
+								{
+									id: '1',
+									a: '1'
+								},
+								{
+									id: '2',
+									a: null
+								}
+							]
+						}
+					},
+					{
+						id: '2',
+						a: [
+							{
+								id: '1',
+								a: '1',
+								b: []
+							},
+							{
+								id: '2',
+								a: '2',
+								b: ['1', '2']
+							}
+						],
+						b: {
+							id: '1',
+							a: '1',
+							b: [
+								{
+									id: '1',
+									a: '1'
+								},
+								{
+									id: '2',
+									a: null
+								}
+							]
+						}
+					}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('Documentation Example 1', function () {
 			var result;
 			beforeEach(function () {

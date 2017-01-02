@@ -16,7 +16,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['aColumnName'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						aColumnName: {
 							valueList: [
@@ -50,7 +50,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						a: {
 							valueList: [
@@ -84,7 +84,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						a: {
 							valueList: [
@@ -118,7 +118,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						a: {
 							valueList: [
@@ -152,9 +152,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [
-						{path: [], prop: 'a'}
-					],
+					trimmerPathSet: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -189,9 +187,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [
-						{path: [], prop: 'a'}
-					],
+					trimmerPathSet: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -229,7 +225,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a', '_b__c'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						'_a': {
 							valueList: [
@@ -282,9 +278,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a', '_b__c'],
-					trimmerList: [
-						{path: ['_a'], prop: 'c'}
-					],
+					trimmerPathSet: [['b', 'c']],
 					idMap: {
 						'_a': {
 							valueList: [
@@ -335,7 +329,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						a: {
 							valueList: [
@@ -371,7 +365,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_a: {
 							valueList: [
@@ -410,7 +404,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_id'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_c: {
 							valueList: [
@@ -460,7 +454,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_a: {
 							valueList: [
@@ -496,7 +490,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_b'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_b: {
 							valueList: [
@@ -532,7 +526,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_a: {
 							valueList: [
@@ -568,7 +562,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
-					trimmerList: [],
+					trimmerPathSet: [],
 					idMap: {
 						_a: {
 							valueList: [
@@ -604,9 +598,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a'],
-					trimmerList: [
-						{path: [], prop: 'b'}
-					],
+					trimmerPathSet: [['b']],
 					idMap: {
 						_a: {
 							valueList: [
@@ -653,9 +645,7 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					primeIdColumnList: ['_a', '_e__f', '_e__h__i'],
-					trimmerList: [
-						{path: ['_a', '_e__f', '_e__h__i'], prop: 'j'}
-					],
+					trimmerPathSet: [['e', 'h', 'j']],
 					idMap: {
 						'_a': {
 							valueList: [

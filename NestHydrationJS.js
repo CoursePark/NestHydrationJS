@@ -206,25 +206,25 @@ function nestHydrationJS() {
 		
 		// reduces an array of objects at a path to an array of values,
 		// where a property of those objects are the values
-		arrObjectToArrValue = function (struct, path, prop) {
+		arrObjectToArrValue = function (struct, path) {
 			var i;
 			
 			if (_.isArray(struct)) {
 				for (i = 0; i < struct.length; i++) {
-					if (path.length) {
-						arrObjectToArrValue(struct[i][path[0]], path.slice(1), prop);
-					} else {
-						struct[i] = struct[i][prop];
+					if (path.length === 1) {
+						struct[i] = struct[i][path[0]];
+					} else if (typeof struct[i][path[0]] !== 'undefined') {
+						arrObjectToArrValue(struct[i][path[0]], path.slice(1));
 					}
 				}
-			} else {
-				arrObjectToArrValue(struct[path[0]], path.slice(1), prop);
+			} else if (typeof struct[path[0]] !== 'undefined') {
+				arrObjectToArrValue(struct[path[0]], path.slice(1));
 			}
 		};
 		
 		// simplify any arrays of objects to arrays of values, based on the trimmers
-		for (i = 0; i < meta.trimmerList.length; i++) {
-			arrObjectToArrValue(struct, meta.trimmerList[i].path, meta.trimmerList[i].prop);
+		for (i = 0; i < meta.trimmerPathSet.length; i++) {
+			arrObjectToArrValue(struct, meta.trimmerPathSet[i]);
 		}
 		
 		return struct;
@@ -235,27 +235,24 @@ function nestHydrationJS() {
 	 */
 	NestHydrationJS.buildMeta = function (structPropToColumnMap) {
 		// internally defines recursive function with extra param. This allows cleaner API
-		var _buildMeta, createMetaTrimmer, meta, objMeta, objMetaKeyList, primeIdColumn;
+		var _buildMeta, createMetaTrimmerPath, meta, objMeta, objMetaKeyList, primeIdColumn;
 		
 		// this data structure is populated by the _buildMeta function
 		meta = {
 			primeIdColumnList: [],
-			trimmerList: [],
+			trimmerPathSet: [],
 			idMap: {}
 		};
 		
-		createMetaTrimmer = function (containingColumn, prop) {
-			var trimmer = {
-				path: [],
-				prop: prop
-			};
+		createMetaTrimmerPath = function (idColumn, prop) {
+			var path = [prop];
 			
-			while (containingColumn !== null) {
-				trimmer.path.unshift(containingColumn);
-				containingColumn = meta.idMap[containingColumn].containingColumn;
+			while (meta.idMap[idColumn].ownProp !== null) {
+				path.unshift(meta.idMap[idColumn].ownProp);
+				idColumn = meta.idMap[idColumn].containingColumn;
 			}
 			
-			return trimmer;
+			return path;
 		};
 		
 		// recursive internal function
@@ -379,7 +376,7 @@ function nestHydrationJS() {
 			objMeta = meta.idMap[objMetaKeyList[i]];
 			
 			if (objMeta.trimmerProp) {
-				meta.trimmerList.push(createMetaTrimmer(objMeta.containingColumn, objMeta.trimmerProp));
+				meta.trimmerPathSet.push(createMetaTrimmerPath(objMetaKeyList[i], objMeta.trimmerProp));
 			}
 		}
 		
