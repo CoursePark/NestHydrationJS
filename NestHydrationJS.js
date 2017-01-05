@@ -207,10 +207,9 @@ function nestHydrationJS() {
 		// reduces an array of objects at a path to an array of values,
 		// where a property of those objects are the values
 		arrObjectToArrValue = function (struct, path) {
-			var i;
-			
+console.log('path', path, 'struct', struct);
 			if (_.isArray(struct)) {
-				for (i = 0; i < struct.length; i++) {
+				for (var i = 0; i < struct.length; i++) {
 					if (path.length === 1) {
 						struct[i] = struct[i][path[0]];
 					} else if (typeof struct[i][path[0]] !== 'undefined') {
@@ -222,6 +221,7 @@ function nestHydrationJS() {
 			}
 		};
 		
+console.log('meta', meta);
 		// simplify any arrays of objects to arrays of values, based on the trimmers
 		for (i = 0; i < meta.trimmerPathSet.length; i++) {
 			arrObjectToArrValue(struct, meta.trimmerPathSet[i]);

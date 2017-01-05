@@ -71,7 +71,7 @@ var definition = [{
 	},
 	lesson: [{
 		id: {column: 'lesson_id', type: 'NUMBER'},
-		title: 'lesson_title'
+		title: {column: 'lesson_title', trimmer: true}
 	}]
 }];
 ```
@@ -97,19 +97,9 @@ Result
 ------
 ```javascript
 [
-	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 1, title: 'Defintions'},
-		{id: 2, title: 'Table Data'},
-		{id: 3, title: 'Objects'}
-	]},
-	{id: 2, title: 'Column Names Define Structure', required: false, teacher: {id: 2, name: 'Chris'}, lesson: [
-		{id: 4, title: 'Column Names'},
-		{id: 2, title: 'Table Data'},
-		{id: 3, title: 'Objects'}
-	]},
-	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: [
-		{id: 5, title: 'Non Array Input'}
-	]}
+	{id: 1, title: 'Tabular to Objects', required: true, teacher: {id: 1, name: 'David'}, lesson: ['Defintions', 'Table Data', 'Objects']},
+	{id: 2, title: 'Column Names Define Structure', required: false, teacher: {id: 2, name: 'Chris'}, lesson: ['Column Names', 'Table Data', 'Objects']},
+	{id: 3, title: 'Object On Bottom', required: false, teacher: {id: 1, name: 'David'}, lesson: ['Non Array Input']}
 ]
 ```
 
@@ -136,8 +126,8 @@ var sql = ''
 	+ 'c.requried  AS _required___BOOLEAN,'
 	+ 't.teacher   AS _teacher_id___NUMBER,'
 	+ 't.name      AS _teacher_name,'
-	+ 'l.title     AS _lesson__title'
-	+ 'l.id        AS _lesson__id___NUMBER___ID,'
+	+ 'l.title     AS _lesson__title___TRIMMER,'
+	+ 'l.id        AS _lesson__id___NUMBER___ID'
 	+ 'FROM course AS c'
 	+ 'JOIN teacher AS t ON t.id = c.teacher_id'
 	+ 'JOIN course_lesson AS cl ON cl.course_id = c.id'
