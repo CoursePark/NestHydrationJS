@@ -339,7 +339,7 @@ function nestHydrationJS() {
 	 * is not specified.
 	 */
 	NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
-		var propertyMapping, prop, i, columnType, type, isId, column, pointer, navList, j, nav, renamedColumn;
+		var column, columnNav, columnPartList, i, isId, j, nav, navList, navMatch, pointer, prop, propertyMapping, _reduce, renamedColumn, separatorRegEx, type;
 		
 		if (typeof renameMapping === 'undefined') {
 			renameMapping = {};
@@ -347,40 +347,62 @@ function nestHydrationJS() {
 		
 		propertyMapping = {base: null};
 		
+		separatorRegEx = /([_#])([^_#]*)/g;
+		
 		for (i = 0; i < columnList.length; i++) {
 			column = columnList[i];
 			
-			columnType = column.split('___');
+			columnPartList = column.split('___');
 			
 			type = null;
 			isId = false;
-			for (j = 1; j < columnType.length; j++) {
-				if (columnType[j] === 'ID') {
+			for (j = 1; j < columnPartList.length; j++) {
+				if (columnPartList[j] === 'ID') {
 					isId = true;
-				} else if (typeof NestHydrationJS.typeHandlers[columnType[j]] !== 'undefined') {
-					type = columnType[j];
+				} else if (typeof NestHydrationJS.typeHandlers[columnPartList[j]] !== 'undefined') {
+					type = columnPartList[j];
 				}
 			}
 			
+			columnNav = columnPartList[0];
 			pointer = propertyMapping; // point to base on each new column
 			prop = 'base';
 			
-			navList = columnType[0].split('_');
+			navList = [];
+			
+			separatorRegEx.lastIndex = 0;
+			navMatch = separatorRegEx.exec(columnNav);
+			navList.push({
+				separator: null,
+				prop: columnNav.substr(0, navMatch === null ? columnNav.length : navMatch.index)
+			});
+			separatorRegEx.lastIndex = 0;
+			while ((navMatch = separatorRegEx.exec(columnNav)) !== null) {
+				navList.push({
+					separator: navMatch[1],
+					prop: navMatch[2]
+				});
+			}
 			
 			for (j = 0; j < navList.length; j++) {
 				nav = navList[j];
 				
-				if (nav === '') {
+				if (nav.prop === '') {
 					if (pointer[prop] === null) {
 						pointer[prop] = [null];
 					}
 					pointer = pointer[prop];
-					prop = 0;
+					prop = pointer.length - 1;
 				} else {
 					if (pointer[prop] === null) {
 						pointer[prop] = {};
 					}
-					if (typeof pointer[prop][nav] === 'undefined') {
+					if (nav.separator === '#' && _.isArray(pointer) && pointer.length !== 2) {
+						pointer[1] = pointer[0];
+						pointer[0] = nav.prop;
+						prop = 1;
+					}
+					if (typeof pointer[prop][nav.prop] === 'undefined') {
 						renamedColumn = typeof renameMapping[column] === 'undefined'
 							? column
 							: renameMapping[column]
@@ -397,16 +419,50 @@ function nestHydrationJS() {
 							// set the id property in the column map
 							renamedColumn.id = true;
 						}
-						pointer[prop][nav] = j === (navList.length - 1)
+						pointer[prop][nav.prop] = j === (navList.length - 1)
 							? renamedColumn // is leaf node, store full column string
 							: null // iteration will replace with object or array
 						;
 					}
 					pointer = pointer[prop];
-					prop = nav;
+					prop = nav.prop;
 				}
 			}
 		}
+		
+		_reduce = function (struct, propOfValueArray) {
+			var i, id, keyList;
+			if (_.isArray(struct)) {
+				if (struct.length === 2) {
+					_reduce(struct[1], struct[0]);
+				} else {
+					_reduce(struct[0]);
+				}
+			} else {
+				// eliminate existing obj props that aren't ids
+				keyList = _.keys(struct);
+				id = null;
+				for (i = 0; i < keyList.length; i++) {
+					if (struct[keyList[i]].column && struct[keyList[i]].id) {
+						id = keyList[i];
+						break;
+					}
+				}
+				if (id === null && keyList.length) {
+					id = keyList[0];
+				}
+				for (i = 0; i < keyList.length; i++) {
+					if (propOfValueArray && keyList[i] !== id && keyList[i] !== propOfValueArray) {
+						delete struct[keyList[i]];
+					} else if (typeof struct[keyList[i]] === 'string' || struct[keyList[i]].column) {
+						continue;
+					} else {
+						_reduce(struct[keyList[i]]);
+					}
+				}
+			}
+		};
+		_reduce(propertyMapping.base);
 		
 		return propertyMapping.base;
 	};

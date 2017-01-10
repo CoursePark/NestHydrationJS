@@ -174,6 +174,23 @@ describe('NestHydrationJS', function () {
 			});
 		});
 		
+		describe('passed single many relation, array format, property as columnList', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'#a'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['a', {
+					a: '#a'
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
 		describe('passed multiple many relation properties as columnList', function () {
 			var result;
 			beforeEach(function () {
@@ -188,6 +205,63 @@ describe('NestHydrationJS', function () {
 				var expected = [{
 					a: '_a',
 					b: '_b'
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed multiple many relation, array format, first property as value, second property ignored, properties as columnList', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'#a',
+					'_b'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['a', {
+					a: '#a'
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed multiple many relation, array format, second property as value, properties as columnList', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_a',
+					'#b'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['b', {
+					a: '_a',
+					b: '#b'
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed multiple many relation, array format, second property as value, third property as id, properties as columnList', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_a',
+					'#b',
+					'_c___ID'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['b', {
+					b: '#b',
+					c: {column: '_c___ID', id: true}
 				}];
 				expect(result).toEqual(expected);
 			});
@@ -209,6 +283,48 @@ describe('NestHydrationJS', function () {
 					b: {
 						c: 'b_c'
 					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('many relation at 2nd level depth', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a',
+					'b__c'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: 'a',
+					b: [{
+						c: 'b__c'
+					}]
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('many relation, array format, at 2nd level depth', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a',
+					'b_#c'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: 'a',
+					b: ['c', {
+						c: 'b_#c'
+					}]
 				};
 				expect(result).toEqual(expected);
 			});
@@ -359,6 +475,41 @@ describe('NestHydrationJS', function () {
 						e: {
 							id: '_a_e_id',
 							f: '_a_e_f'
+						}
+					}
+				}];
+				expect(result).toEqual(expected);
+			});
+		});
+		
+		describe('passed complex array base scenaro as columnList, array format at multiple levels', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'_id',
+					'#a_id',
+					'#a_b',
+					'#a_c__id',
+					'#a_c_#d',
+					'#a_e_id',
+					'#a_e_f'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = ['a', {
+					id: '_id',
+					a: {
+						id: '#a_id',
+						b: '#a_b',
+						c: ['d', {
+							id: '#a_c__id',
+							d: '#a_c_#d'
+						}],
+						e: {
+							id: '#a_e_id',
+							f: '#a_e_f'
 						}
 					}
 				}];
