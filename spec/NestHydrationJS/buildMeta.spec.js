@@ -170,20 +170,20 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					a: {column: '_a', default: 'a_default'},
-					b: '_b'
+					a: {column: 'a', default: 'a_default'},
+					b: 'b'
 				};
 				result = NestHydrationJS.buildMeta(mapping);
 			});
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a'],
+					primeIdColumnList: ['a'],
 					idMap: {
-						_a: {
+						a: {
 							valueList: [
-								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
-								{prop: 'b', column: '_b', type: undefined, default: undefined}
+								{prop: 'a', column: 'a', type: undefined, default: 'a_default'},
+								{prop: 'b', column: 'b', type: undefined, default: undefined}
 							],
 							toOneList: [],
 							toManyPropList: [],
@@ -204,38 +204,38 @@ describe('NestHydrationJS', function () {
 			var result;
 			beforeEach(function () {
 				var mapping = {
-					id: '_id',
+					id: 'id',
 					a: {
-						c: {column: '_c', default: 'c_default'}
+						c: {column: 'c', default: 'c_default'}
 					},
-					b: '_b'
+					b: 'b'
 				};
 				result = NestHydrationJS.buildMeta(mapping);
 			});
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_id'],
+					primeIdColumnList: ['id'],
 					idMap: {
-						_c: {
+						c: {
 							valueList: [
-								{prop: 'c', column: '_c', type: undefined, default: 'c_default'}
+								{prop: 'c', column: 'c', type: undefined, default: 'c_default'}
 							],
 							toOneList: [],
 							toManyPropList: [],
-							containingColumn: '_id',
+							containingColumn: 'id',
 							ownProp: 'a',
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: {},
 							default: 'c_default'
 						},
-						_id: {
+						id: {
 							valueList: [
-								{prop: 'id', column: '_id', type: undefined, default: undefined},
-								{prop: 'b', column: '_b', type: undefined, default: undefined}
+								{prop: 'id', column: 'id', type: undefined, default: undefined},
+								{prop: 'b', column: 'b', type: undefined, default: undefined}
 							],
-							toOneList: [{prop: 'a', column: '_c'}],
+							toOneList: [{prop: 'a', column: 'c'}],
 							toManyPropList: [],
 							containingColumn: null,
 							ownProp: null,
