@@ -7,11 +7,6 @@ function nestHydrationJS() {
 	
 	NestHydrationJS = {};
 	
-	NestHydrationJS.types = {
-		NUMBER: 'NUMBER',
-		BOOLEAN: 'BOOLEAN'
-	};
-	
 	NestHydrationJS.typeHandlers = {
 		NUMBER: function (cellValue) {
 			return parseFloat(cellValue);
