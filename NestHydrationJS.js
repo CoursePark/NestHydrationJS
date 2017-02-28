@@ -2,9 +2,13 @@
 
 function nestHydrationJS() {
 	var NestHydrationJS, _;
-	
-	_ = require('lodash');
-	
+
+	var isArray = require('lodash/isArray');
+	var isFunction = require('lodash/isFunction');
+	var keys = require('lodash/keys');
+	var values = require('lodash/values');
+	var isPlainObject = require('lodash/isPlainObject');
+
 	NestHydrationJS = {};
 	
 	NestHydrationJS.types = {
@@ -42,15 +46,15 @@ function nestHydrationJS() {
 			return null;
 		}
 		
-		if (!_.isArray(structPropToColumnMap) && !_.isPlainObject(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
+		if (!isArray(structPropToColumnMap) && !isPlainObject(structPropToColumnMap) && structPropToColumnMap !== null && structPropToColumnMap !== true) {
 			throw new Error('nest expects param structPropToColumnMap to be an array, plain object, null, or true');
 		}
 		
-		if (_.isPlainObject(data)) {
+		if (isPlainObject(data)) {
 			// internal table should be a table format but a plain object
 			// could be passed as the first (and only) row of that table
 			table = [data];
-		} else if (_.isArray(data)) {
+		} else if (isArray(data)) {
 			table = data;
 		} else {
 			throw Error('nest expects param data to be in the form of a plain object or an array of plain objects (forming a table)');
@@ -65,7 +69,7 @@ function nestHydrationJS() {
 		
 		if (structPropToColumnMap === null && table.length > 0) {
 			// property mapping not specified, determine it from column names
-			structPropToColumnMap = NestHydrationJS.structPropToColumnMapFromColumnHints(_.keys(table[0]));
+			structPropToColumnMap = NestHydrationJS.structPropToColumnMapFromColumnHints(keys(table[0]));
 		}
 		
 		if (structPropToColumnMap === null) {
@@ -74,7 +78,7 @@ function nestHydrationJS() {
 			return listOnEmpty ? [] : null;
 		} else if (table.length === 0) {
 			// table is empty, return the appropriate empty result based on input definition
-			return _.isArray(structPropToColumnMap) ? [] : null;
+			return isArray(structPropToColumnMap) ? [] : null;
 		}
 		
 		// COMPLETE VALIDATING PARAMS AND BASIC INITIALIZATION
@@ -127,7 +131,7 @@ function nestHydrationJS() {
 					cell = objMeta.valueList[k];
 					cellValue = row[cell.column];
 					if (cellValue !== null) {
-						if (_.isFunction(cell.type)) {
+						if (isFunction(cell.type)) {
 							valueTypeFunction = cell.type;
 						} else {
 							valueTypeFunction = NestHydrationJS.typeHandlers[cell.type];
@@ -218,8 +222,8 @@ function nestHydrationJS() {
 		_buildMeta = function (structPropToColumnMap, isOneOfMany, containingColumn, ownProp) {
 			var propList, idProp, idColumn, i, prop, objMeta, subIdColumn;
 			
-			propList = _.keys(structPropToColumnMap);
 			
+			propList = keys(structPropToColumnMap);
 			if (propList.length === 0) {
 				throw new Error('invalid structPropToColumnMap format - property \'' + ownProp + '\' can not be an empty array');
 			}
@@ -272,15 +276,15 @@ function nestHydrationJS() {
 						type: structPropToColumnMap[prop].type,
 						default: structPropToColumnMap[prop].default
 					});
-				} else if (_.isArray(structPropToColumnMap[prop])) {
+				} else if (isArray(structPropToColumnMap[prop])) {
 					// list of objects / to-many relation
 					objMeta.toManyPropList.push(prop);
 					
 					_buildMeta(structPropToColumnMap[prop][0], true, idColumn, prop);
-				} else if (_.isPlainObject(structPropToColumnMap[prop])) {
+				} else if (isPlainObject(structPropToColumnMap[prop])) {
 					// object / to-one relation
-					subIdColumn = _.values(structPropToColumnMap[prop])[0];
 					
+					subIdColumn = values(structPropToColumnMap[prop])[0];
 					if (typeof subIdColumn === 'undefined') {
 						throw new Error('invalid structPropToColumnMap format - property \'' + prop + '\' can not be an empty object');
 					}
@@ -308,15 +312,15 @@ function nestHydrationJS() {
 			idMap: {}
 		};
 		
-		if (_.isArray(structPropToColumnMap)) {
+		if (isArray(structPropToColumnMap)) {
 			if (structPropToColumnMap.length !== 1) {
 				throw new Error('invalid structPropToColumnMap format - can not have multiple roots for structPropToColumnMap, if an array it must only have one item');
 			}
 			// call with first object, but inform _buildMeta it is an array
 			_buildMeta(structPropToColumnMap[0], true, null, null);
-		} else if (_.isPlainObject(structPropToColumnMap)) {
+		} else if (isPlainObject(structPropToColumnMap)) {
 			// register first column as prime id column
-			primeIdColumn = _.values(structPropToColumnMap)[0];
+			primeIdColumn = values(structPropToColumnMap)[0];
 			if (typeof primeIdColumn === 'undefined') {
 				throw new Error('invalid structPropToColumnMap format - the base object can not be an empty object');
 			}
