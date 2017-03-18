@@ -338,7 +338,7 @@ function nestHydrationJS() {
 	 * is not specified.
 	 */
 	NestHydrationJS.structPropToColumnMapFromColumnHints = function (columnList, renameMapping) {
-		var propertyMapping, prop, i, columnType, type, isId, column, pointer, navList, j, nav, renamedColumn;
+		var propertyMapping, prop, i, columnType, type, isId, column, pointer, navList, j, nav, renamedColumn, prevKeyList, k;
 		
 		if (typeof renameMapping === 'undefined') {
 			renameMapping = {};
@@ -395,6 +395,13 @@ function nestHydrationJS() {
 						if (isId) {
 							// set the id property in the column map
 							renamedColumn.id = true;
+							// check for any existing id keys that are conflicting
+							prevKeyList = keys(pointer[prop]);
+							for (k = 0; k < prevKeyList.length; k++) {
+								if (pointer[prop][prevKeyList[k]].id === true) {
+									return 'invalid - multiple id - ' + pointer[prop][prevKeyList[k]].column + ' and ' + renamedColumn.column + ' conflict';
+								}
+							}
 						}
 						pointer[prop][nav] = j === (navList.length - 1)
 							? renamedColumn // is leaf node, store full column string
