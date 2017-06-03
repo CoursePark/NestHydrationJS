@@ -170,13 +170,15 @@ function nestHydrationJS() {
 			} else {
 				containingId = row[objMeta.containingColumn];
 				container = meta.idMap[objMeta.containingColumn].cache[containingId];
-				
-				if (objMeta.isOneOfMany) {
-					// it is an array
-					container[objMeta.ownProp].push(obj);
-				} else {
-					// it is this object
-					container[objMeta.ownProp] = obj;
+
+				if (container) {
+					if (objMeta.isOneOfMany) {
+						// it is an array
+						container[objMeta.ownProp].push(obj);
+					} else {
+						// it is this object
+						container[objMeta.ownProp] = obj;
+					}
 				}
 				
 				// record the containing id
