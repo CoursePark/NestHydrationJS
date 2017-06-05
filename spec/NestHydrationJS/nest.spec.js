@@ -1074,7 +1074,7 @@ describe('NestHydrationJS', function () {
 	});
 
 	it('Should not break on null data with complex nesting', function () {
-		const rows = [
+		var rows = [
 			{
 				'id': 1,
 				'nested__id': 3
@@ -1084,7 +1084,7 @@ describe('NestHydrationJS', function () {
 				'nested__id': null
 			}
 		];
-		const shapeDefinition = [
+		var shapeDefinition = [
 			{
 				'id': 'id',
 				'nested': {
