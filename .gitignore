@@ -1,3 +1,13 @@
-coverage
-node_modules
-npm-debug.log
+*
+
+!/spec
+!/spec/**
+!/.coveralls.yml
+!/.editorconfig
+!/.eslintrc
+!/.travis.yml
+!/CHANGELOG.md
+!/NestHydrationJS.js
+!/README.md
+!/package-lock.json
+!/package.json

@@ -3,10 +3,13 @@ sudo: false
 branches:
     only:
         - master
+        - qc
 node_js:
     - "0.12.5"
     - "4"
     - "6"
+    - "8"
+    - "10"
+after_success: npm run coverage
 script:
     - npm test
-    - npm run coveralls
