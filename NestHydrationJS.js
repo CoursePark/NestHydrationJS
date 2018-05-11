@@ -3,11 +3,11 @@
 function nestHydrationJS() {
 	var NestHydrationJS, _;
 
-	var isArray = require('lodash/isArray');
-	var isFunction = require('lodash/isFunction');
-	var keys = require('lodash/keys');
-	var values = require('lodash/values');
-	var isPlainObject = require('lodash/isPlainObject');
+	var isArray = require('lodash.isarray');
+	var isFunction = require('lodash.isfunction');
+	var keys = require('lodash.keys');
+	var values = require('lodash.values');
+	var isPlainObject = require('lodash.isplainobject');
 
 	NestHydrationJS = {};
 	
