@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -13,7 +13,8 @@
   "license": "ISC",
   "main": "NestHydrationJS.js",
   "scripts": {
-    "coverage": "nyc report --reporter=text-lcov jasmine | coveralls",
+    "coverage": "nyc jasmine",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "test": "jasmine",
     "lint": "eslint NestHydrateJS.js spec/**/*.js"
   },
