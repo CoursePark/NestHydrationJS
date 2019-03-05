@@ -30,10 +30,16 @@
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.122",
+    "@types/node": "^11.10.4",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "jasmine": "^3.1.0",
-    "nyc": "^11.7.3"
+    "nyc": "^11.7.3",
+    "typescript": "^3.3.3333"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "author": "Bluedrop Peformance Learning"
 }
