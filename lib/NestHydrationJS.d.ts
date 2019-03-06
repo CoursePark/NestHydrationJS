@@ -1,3 +1,8 @@
+declare const isArray: any;
+declare const isFunction: any;
+declare const keys: any;
+declare const values: any;
+declare const isPlainObject: any;
 declare module NestHydrationJS {
     interface TypeHandlers {
         [index: string]: TypeHandler;
@@ -48,5 +53,3 @@ declare module NestHydrationJS {
         registerType(name: string, handler: TypeHandler): void;
     }
 }
-export default function (): NestHydrationJS.NestHydrationJS;
-export {};
