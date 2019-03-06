@@ -11,7 +11,8 @@
     "Nested"
   ],
   "license": "ISC",
-  "main": "NestHydrationJS.js",
+  "main": "lib/NestHydrationJS.js",
+  "types": "lib/NestHydrationJS.d.js",
   "scripts": {
     "coverage": "nyc jasmine",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
