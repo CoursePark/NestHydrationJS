@@ -1,6 +1,5 @@
 *
 
-!/lib/**/*
 !/spec
 !/spec/**
 !/.coveralls.yml
@@ -12,3 +11,4 @@
 !/package-lock.json
 !/package.json
 !/README.md
+!/src/**/*
