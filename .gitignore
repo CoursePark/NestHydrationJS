@@ -1,14 +1,1 @@
-*
-
-!/spec
-!/spec/**
-!/.coveralls.yml
-!/.editorconfig
-!/.eslintrc
-!/.travis.yml
-!/CHANGELOG.md
-!/NestHydrationJS.js
-!/package-lock.json
-!/package.json
-!/README.md
-!/src/**/*
+node_modules/
