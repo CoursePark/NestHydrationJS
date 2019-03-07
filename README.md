@@ -226,7 +226,7 @@ Additional Definition Object Capabilities
 Ids That Aren't First In Definition Properties
 ----------------------------------------------
 
-It is possible to specify an id column for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple properties for an object are specified to be ids only the first will be used.
+It is possible to specify the id columns for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple id properties for an object are specified, they will be treated as a composite key.
 
 ```javascript
 var NestHydrationJS = require('nesthydrationjs')();
@@ -287,6 +287,41 @@ result = NestHydrationJS.nest(table, definition);
 /* result would be the following:
 [
 	{id: 1, title: 'my default'}
+]
+*/
+```
+
+Arrays
+------
+
+You can specify that a column should be joined as an array by setting `array` to true.
+
+### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs')();
+
+var table = [
+	{ id: 1, foo: 'foo' },
+	{ id: 1, foo: 'bar' },
+	{ id: 1, foo: 'baz' },
+	{ id: 2, foo: 'foo' }
+];
+var definition = [{
+	id: 'id',
+	title: {column: 'foo', array: true},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{
+        id: 1,
+        title: ['foo', 'bar', 'baz']
+    },
+    {
+        id: 2,
+        title: ['foo']
+    }
 ]
 */
 ```
