@@ -61,7 +61,7 @@ module NestHydrationJS {
 
 	export class NestHydrationJS {
 	
-		typeHandlers = {
+		private typeHandlers = {
 			NUMBER: function (cellValue: any) {
 				return parseFloat(cellValue);
 			},
@@ -70,7 +70,7 @@ module NestHydrationJS {
 			}
 		} as TypeHandlers;
 	
-		struct: object | Array<any> | null = null
+		private struct: object | Array<any> | null = null
 		
 		/* Creates a data structure containing nested objects and/or arrays from
 		 * tabular data based on a structure definition provided by
@@ -274,7 +274,7 @@ module NestHydrationJS {
 		/* Create a data structure that contains lookups and cache spaces for quick
 		 * reference and action for the workings of the nest method.
 		 */
-		buildMeta(structPropToColumnMap: Definition | Definition[]): MetaData {
+		private buildMeta(structPropToColumnMap: Definition | Definition[]): MetaData {
 	
 			var meta: MetaData;
 	
