@@ -84,7 +84,7 @@ describe('NestHydrationJS', function () {
 			});
 		});
 
-		describe('passed two properties as columnList both as id columns', function () {
+		describe('passed two properties both as id columns', function () {
 			var result;
 			beforeEach(function () {
 				var columnList = [

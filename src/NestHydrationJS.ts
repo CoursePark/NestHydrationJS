@@ -22,8 +22,7 @@ module NestHydrationJS {
 		prop: string,
 		column: string,
 		type?: string | TypeHandler,
-		default?: any,
-		array?: boolean
+		default?: any
 	}
 	
 	interface Dictionary<TValue> {
@@ -197,12 +196,12 @@ module NestHydrationJS {
 					obj = objMeta.cache[createCompositeKey(values)];
 
 					// Add array values if necessary
-					if (objMeta.arraysList.length > 0) {
-						for (let prop of objMeta.arraysList) {
-							let cellValue = this.computeActualCellValue(prop, row[prop.column])
-							if (isArray(obj[prop.prop])) {
-								obj[prop.prop].push(cellValue)
-							}
+					for (let prop of objMeta.arraysList) {
+						let cellValue = this.computeActualCellValue(prop, row[prop.column])
+						if (isArray(obj[prop.prop])) {
+							obj[prop.prop].push(cellValue)
+						} else {
+							obj[prop.prop] = [cellValue]
 						}
 					}
 
@@ -212,7 +211,6 @@ module NestHydrationJS {
 					// containingIdUsage is not null and can cast it as a string
 	
 					// check and see if this has already been linked to the parent,
-					// doesn't contain any array lists,
 					// and if so we don't need to continue
 					let containingIds = (<Array<string>>objMeta.containingColumn).map(column => row[column]);
 					if (typeof objMeta.containingIdUsage[createCompositeKey(values)] !== 'undefined'
@@ -226,20 +224,17 @@ module NestHydrationJS {
 					
 					// copy in properties from table data
 					for (let prop of objMeta.valueList) {
-						if (prop.array === true) continue;
 						let cellValue = this.computeActualCellValue(prop, row[prop.column]);
 						obj[prop.prop] = cellValue;
 					}
 
 					// Add array values
-					if (objMeta.arraysList.length > 0) {
-						for (let prop of objMeta.arraysList) {
-							let cellValue = this.computeActualCellValue(prop, row[prop.column]);
-							if (isArray(obj[prop.prop])) {
-								obj[prop.prop].push(cellValue)
-							} else {
-								obj[prop.prop] = [cellValue]
-							}
+					for (let prop of objMeta.arraysList) {
+						let cellValue = this.computeActualCellValue(prop, row[prop.column]);
+						if (isArray(obj[prop.prop])) {
+							obj[prop.prop].push(cellValue)
+						} else {
+							obj[prop.prop] = [cellValue]
 						}
 					}
 					
@@ -384,9 +379,7 @@ module NestHydrationJS {
 							prop: prop,
 							column: structPropToColumnMap[prop] as string,
 							type: undefined,
-							default: undefined,
-							array: undefined
-						});
+							default: undefined						});
 					} else if ((<DefinitionColumn>structPropToColumnMap[prop]).column) {
 						// value property
 						const definitionColumn = <DefinitionColumn>structPropToColumnMap[prop]
@@ -394,13 +387,14 @@ module NestHydrationJS {
 							prop: prop,
 							column: definitionColumn.column,
 							type: definitionColumn.type,
-							default: definitionColumn.default,
-							array: definitionColumn.array === true
+							default: definitionColumn.default
 						}
-						objMeta.valueList.push(metaValueProps);
+						
 						// Add this column to our array list if necessary
 						if (definitionColumn.array === true) {
 							objMeta.arraysList.push(metaValueProps);
+						} else {
+							objMeta.valueList.push(metaValueProps);
 						}
 					} else if (isArray(structPropToColumnMap[prop])) {
 						// list of objects / to-many relation
@@ -498,9 +492,12 @@ module NestHydrationJS {
 				
 				let type = null;
 				let isId = false;
+				let isArray = false;
 				for (let j = 1; j < columnType.length; j++) {
 					if (columnType[j] === 'ID') {
 						isId = true;
+					} else if (columnType[j] === 'ARRAY') {
+						isArray = true;
 					} else if (typeof this.typeHandlers[columnType[j]] !== 'undefined') {
 						type = columnType[j];
 					}
@@ -540,6 +537,9 @@ module NestHydrationJS {
 							if (isId) {
 								// set the id property in the column map
 								renamedColumn.id = true;
+							}
+							if (isArray) {
+								renamedColumn.array = true;
 							}
 							pointer[prop][nav] = j === (navList.length - 1)
 								? renamedColumn // is leaf node, store full column string

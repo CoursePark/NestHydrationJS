@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -17,7 +17,8 @@
     "coverage": "nyc jasmine",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "test": "jasmine",
-    "lint": "eslint NestHydrateJS.js spec/**/*.js"
+    "lint": "eslint NestHydrateJS.js spec/**/*.js",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

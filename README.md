@@ -223,8 +223,8 @@ Result
 Additional Definition Object Capabilities
 =========================================
 
-Ids That Aren't First In Definition Properties
-----------------------------------------------
+Ids That Aren't First In Definition Properties / Composite Ids
+--------------------------------------------------------------
 
 It is possible to specify the id columns for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple id properties for an object are specified, they will be treated as a composite key.
 
@@ -385,6 +385,10 @@ result = NestHydrationJS.nest(table, definition);
 ]
 */
 ```
+
+### Typescript Definitions
+
+Typescript definitions are bundled with this module.
 
 Related Projects
 ----------------
