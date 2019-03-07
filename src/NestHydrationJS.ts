@@ -1,6 +1,7 @@
 'use strict';
 
 import { create } from "domain";
+import { Z_DEFAULT_COMPRESSION } from "zlib";
 
 const isArray = require('lodash.isarray');
 const isFunction = require('lodash.isfunction');
@@ -21,7 +22,8 @@ module NestHydrationJS {
 		prop: string,
 		column: string,
 		type?: string | TypeHandler,
-		default?: any
+		default?: any,
+		array?: boolean
 	}
 	
 	interface Dictionary<TValue> {
@@ -31,6 +33,7 @@ module NestHydrationJS {
 	interface MetaColumnData {
 		valueList: Array<MetaValueProps>,
 		toOneList: Array<MetaValueProps>,
+		arraysList: Array<MetaValueProps>,
 		toManyPropList: Array<string>,
 		containingColumn: Array<string> | null,
 		ownProp: string | null,
@@ -49,7 +52,8 @@ module NestHydrationJS {
 		column: string,
 		id?: boolean,
 		default?: any,
-		type?: string
+		type?: string,
+		array?: boolean
 	}
 	
 	interface Definition {
@@ -77,6 +81,26 @@ module NestHydrationJS {
 		} as TypeHandlers;
 	
 		private struct: object | Array<any> | null = null
+
+		private computeActualCellValue(props: MetaValueProps, initialValue: any) {
+			let cellValue = initialValue;
+			if (cellValue !== null) {
+				let valueTypeFunction: TypeHandler | undefined;
+	
+				if (isFunction(props.type)) {
+					valueTypeFunction = props.type as TypeHandler;
+				} else if (typeof props.type === 'string') {
+					valueTypeFunction = this.typeHandlers[props.type];
+				}
+	
+				if (valueTypeFunction) {
+					cellValue = valueTypeFunction(cellValue);
+				}
+			} else if (typeof props.default !== 'undefined') {
+				cellValue = props.default;
+			}
+			return cellValue;
+		}
 		
 		/* Creates a data structure containing nested objects and/or arrays from
 		 * tabular data based on a structure definition provided by
@@ -147,8 +171,6 @@ module NestHydrationJS {
 				
 				// Obj is the actual object that will end up in the final structure
 				let obj: Data;
-
-				if (verbose) console.log(meta);
 				
 				// Get all of the values for each id
 				let values: Array<any> = idColumns.map(column => row[column]);
@@ -170,47 +192,55 @@ module NestHydrationJS {
 				
 				// check if object already exists in cache
 				if (typeof objMeta.cache[createCompositeKey(values)] !== 'undefined') {
-					
+
+					// not already placed as to-many relation in container
+					obj = objMeta.cache[createCompositeKey(values)];
+
+					// Add array values if necessary
+					if (objMeta.arraysList.length > 0) {
+						for (let prop of objMeta.arraysList) {
+							let cellValue = this.computeActualCellValue(prop, row[prop.column])
+							if (isArray(obj[prop.prop])) {
+								obj[prop.prop].push(cellValue)
+							}
+						}
+					}
+
 					if (objMeta.containingIdUsage === null) return;
 					
 					// We know for certain that containing column is set if
 					// containingIdUsage is not null and can cast it as a string
 	
 					// check and see if this has already been linked to the parent,
+					// doesn't contain any array lists,
 					// and if so we don't need to continue
 					let containingIds = (<Array<string>>objMeta.containingColumn).map(column => row[column]);
 					if (typeof objMeta.containingIdUsage[createCompositeKey(values)] !== 'undefined'
 						&& typeof objMeta.containingIdUsage[createCompositeKey(values)][createCompositeKey(containingIds)] !== 'undefined'
 					) return;
 					
-					// not already placed as to-many relation in container
-					obj = objMeta.cache[createCompositeKey(values)];
 				} else {
 					// don't have an object defined for this yet, create it and set the cache
 					obj = {};
 					objMeta.cache[createCompositeKey(values)] = obj;
 					
 					// copy in properties from table data
-					for (let k = 0; k < objMeta.valueList.length; k++) {
-						let cell = objMeta.valueList[k];
-						let cellValue = row[cell.column];
-						if (cellValue !== null) {
-							let valueTypeFunction: TypeHandler | undefined;
-	
-							if (isFunction(cell.type)) {
-								valueTypeFunction = cell.type as TypeHandler;
-							} else if (typeof cell.type === 'string') {
-								valueTypeFunction = this.typeHandlers[cell.type];
+					for (let prop of objMeta.valueList) {
+						if (prop.array === true) continue;
+						let cellValue = this.computeActualCellValue(prop, row[prop.column]);
+						obj[prop.prop] = cellValue;
+					}
+
+					// Add array values
+					if (objMeta.arraysList.length > 0) {
+						for (let prop of objMeta.arraysList) {
+							let cellValue = this.computeActualCellValue(prop, row[prop.column]);
+							if (isArray(obj[prop.prop])) {
+								obj[prop.prop].push(cellValue)
+							} else {
+								obj[prop.prop] = [cellValue]
 							}
-	
-							if (valueTypeFunction) {
-								cellValue = valueTypeFunction(cellValue);
-							}
-						} else if (typeof cell.default !== 'undefined') {
-							cellValue = cell.default;
 						}
-						
-						obj[cell.prop] = cellValue;
 					}
 					
 					// initialize empty to-many relations, they will be populated when
@@ -336,6 +366,7 @@ module NestHydrationJS {
 				let objMeta: MetaColumnData = {
 					valueList: [],
 					toOneList: [],
+					arraysList: [],
 					toManyPropList: [],
 					containingColumn: containingColumn,
 					ownProp: ownProp,
@@ -353,17 +384,24 @@ module NestHydrationJS {
 							prop: prop,
 							column: structPropToColumnMap[prop] as string,
 							type: undefined,
-							default: undefined
+							default: undefined,
+							array: undefined
 						});
 					} else if ((<DefinitionColumn>structPropToColumnMap[prop]).column) {
 						// value property
 						const definitionColumn = <DefinitionColumn>structPropToColumnMap[prop]
-						objMeta.valueList.push({
+						const metaValueProps = {
 							prop: prop,
 							column: definitionColumn.column,
 							type: definitionColumn.type,
-							default: definitionColumn.default
-						});
+							default: definitionColumn.default,
+							array: definitionColumn.array === true
+						}
+						objMeta.valueList.push(metaValueProps);
+						// Add this column to our array list if necessary
+						if (definitionColumn.array === true) {
+							objMeta.arraysList.push(metaValueProps);
+						}
 					} else if (isArray(structPropToColumnMap[prop])) {
 						// list of objects / to-many relation
 						objMeta.toManyPropList.push(prop);

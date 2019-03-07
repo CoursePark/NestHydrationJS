@@ -10,6 +10,7 @@ declare module NestHydrationJS {
         id?: boolean;
         default?: any;
         type?: string;
+        array?: boolean;
     }
     interface Definition {
         [index: string]: DefinitionColumn | string | Definition | Definition[];
@@ -17,6 +18,7 @@ declare module NestHydrationJS {
     class NestHydrationJS {
         private typeHandlers;
         private struct;
+        private computeActualCellValue;
         nest(data: any, structPropToColumnMap: Definition | Definition[] | null | boolean, verbose?: boolean): any;
         private buildMeta;
         structPropToColumnMapFromColumnHints(columnList: Array<string>, renameMapping?: Dictionary<string>): any;
