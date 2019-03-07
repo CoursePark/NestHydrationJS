@@ -83,6 +83,25 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+
+		describe('passed two properties as columnList both as id columns', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ID',
+					'b___ID'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ID', id: true},
+					b: {column: 'b___ID', id: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
 		
 		describe('passed single direct property as columnList, id column and typed', function () {
 			var result;

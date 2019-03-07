@@ -381,6 +381,79 @@ describe('NestHydrationJS', function () {
 			});
 		});
 
+		describe('multiple mapping array with composite id', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', id: true},
+					b: {column: 'b', id: true}
+				}];
+				var data = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a1', b: 'value b2'},
+					{a: 'value a2', b: 'value b1'},
+					{a: 'value a2', b: 'value b2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'value a1', b: 'value b1'},
+					{a: 'value a1', b: 'value b2'},
+					{a: 'value a2', b: 'value b1'},
+					{a: 'value a2', b: 'value b2'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id and multiple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', id: true},
+					b: {column: 'b', id: true},
+					c: [{
+						id: 'c_id'
+					}]
+				}];
+				var data = [
+					{a: 'a1', b: 'b1', c_id: 'c1'},
+					{a: 'a1', b: 'b1', c_id: 'c2'},
+					{a: 'a2', b: 'b1', c_id: 'c1'},
+					{a: 'a2', b: 'b1', c_id: 'c2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'a1', b: 'b1', c: [ { id: 'c1'} , { id: 'c2' } ]},
+					{a: 'a2', b: 'b1', c: [ { id: 'c1'} , { id: 'c2' } ]},
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id and multiple mapping', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: {column: 'a', id: true},
+					b: {column: 'b', id: true},
+				};
+				var data = {a: 'a1', b: 'b1'};
+				result = NestHydrationJS.nest(data, mapping, true);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {a: 'a1', b: 'b1'};
+				console.log("result: ", result)
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping array, hinted mapping', function () {
 			var result;
 			beforeEach(function () {

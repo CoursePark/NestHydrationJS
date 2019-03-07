@@ -17,7 +17,7 @@ declare module NestHydrationJS {
     class NestHydrationJS {
         private typeHandlers;
         private struct;
-        nest(data: any, structPropToColumnMap: Definition | Definition[] | null | boolean): any;
+        nest(data: any, structPropToColumnMap: Definition | Definition[] | null | boolean, verbose?: boolean): any;
         private buildMeta;
         structPropToColumnMapFromColumnHints(columnList: Array<string>, renameMapping?: Dictionary<string>): any;
         registerType(name: string, handler: TypeHandler): void;

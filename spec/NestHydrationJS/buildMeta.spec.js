@@ -386,6 +386,74 @@ describe('NestHydrationJS', function () {
 			});
 		});
 
+		describe('multiple mapping array with composite id', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: '_a', id: true},
+					b: {column: '_b', id: true}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: [['_a', '_b']],
+					idMap: {
+						'_a, _b': {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: undefined},
+								{prop: 'b', column: '_b', type: undefined, default: undefined}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							defaults: {a: null, b: null}
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id and defaults', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: '_a', id: true, default: 'a_default'},
+					b: {column: '_b', id: true, default: 'b_default'}
+				}];
+				result = NestHydrationJS.buildMeta(mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {
+					primeIdColumnList: [['_a', '_b']],
+					idMap: {
+						'_a, _b': {
+							valueList: [
+								{prop: 'a', column: '_a', type: undefined, default: 'a_default'},
+								{prop: 'b', column: '_b', type: undefined, default: 'b_default'}
+							],
+							toOneList: [],
+							toManyPropList: [],
+							containingColumn: null,
+							ownProp: null,
+							isOneOfMany: true,
+							cache: {},
+							containingIdUsage: null,
+							defaults: {a: 'a_default', b: 'b_default'}
+						}
+					}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping complex', function () {
 			var result;
 			beforeEach(function () {

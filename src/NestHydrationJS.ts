@@ -84,7 +84,7 @@ module NestHydrationJS {
 		 * the data has column names that follow a particular convention then a
 		 * nested structures can also be created.
 		 */
-		nest(data: any, structPropToColumnMap: Definition | Definition[] | null | boolean): any {
+		nest(data: any, structPropToColumnMap: Definition | Definition[] | null | boolean, verbose = false): any {
 			
 			let table;
 			
@@ -138,7 +138,7 @@ module NestHydrationJS {
 			
 			// COMPLETE VALIDATING PARAMS AND BASIC INITIALIZATION
 			
-			let meta = this.buildMeta(<Definition | Definition[]>structPropToColumnMap);
+			let meta = this.buildMeta(<Definition | Definition[]>structPropToColumnMap, verbose);
 
 			// BUILD FROM TABLE
 			
@@ -147,6 +147,8 @@ module NestHydrationJS {
 				
 				// Obj is the actual object that will end up in the final structure
 				let obj: Data;
+
+				if (verbose) console.log(meta);
 				
 				// Get all of the values for each id
 				let values: Array<any> = idColumns.map(column => row[column]);
@@ -265,6 +267,8 @@ module NestHydrationJS {
 			
 			// struct is populated inside the build function
 			this.struct = null;
+
+			if (verbose) console.log(meta);
 			
 			for (let i = 0; i < table.length; i++) {
 				// go through each row of the table
@@ -274,7 +278,6 @@ module NestHydrationJS {
 					// for each prime id column (corresponding to a to-many relation or
 					// the top level) attempted to build an object
 					let primeIdColumn = meta.primeIdColumnList[j];
-					
 					_nest(row, primeIdColumn);
 				}
 			}
@@ -285,7 +288,7 @@ module NestHydrationJS {
 		/* Create a data structure that contains lookups and cache spaces for quick
 		 * reference and action for the workings of the nest method.
 		 */
-		private buildMeta(structPropToColumnMap: Definition | Definition[]): MetaData {
+		private buildMeta(structPropToColumnMap: Definition | Definition[], verbose = false): MetaData {
 	
 			var meta: MetaData;
 	
@@ -318,7 +321,6 @@ module NestHydrationJS {
 					idProps.push(propList[0]);
 				}
 	
-				// Force we can garuantee that it is a string now, so this will prevent the index error				
 				idColumns = idProps.map(prop => (<DefinitionColumn>structPropToColumnMap[prop]).column || structPropToColumnMap[prop]) as Array<string>;
 				
 				if (isOneOfMany) {
@@ -405,17 +407,32 @@ module NestHydrationJS {
 				// call with first object, but inform _buildMeta it is an array
 				_buildMeta((<Array<Definition>>structPropToColumnMap)[0], true, null, null);
 			} else if (isPlainObject(structPropToColumnMap)) {
+
 				// register first column as prime id column
-				let primeIdColumn = values(structPropToColumnMap)[0];
-				if (typeof primeIdColumn === 'undefined') {
+				let columns = values(structPropToColumnMap) as any[];
+
+				if (columns.length === 0) {
 					throw new Error('invalid structPropToColumnMap format - the base object can not be an empty object');
 				}
+
+				// First determine if there are any keys set on the columns
+				let keys = columns.reduce((accumulator: string[], column: any) => {
+					if (column.id === true) {
+						accumulator.push(column.column)
+					}
+					return accumulator;
+				}, []);
 				
-				if (typeof primeIdColumn !== 'string') {
-					primeIdColumn = primeIdColumn.column;
+				// If there were no keys set, then take the first column as the id
+				if (keys.length === 0) {
+					if (typeof columns[0] === 'string') {
+						keys.push(columns[0])
+					} else if(typeof columns[0].column === 'string') {
+						keys.push(columns[0].column)
+					}
 				}
-				
-				meta.primeIdColumnList.push([primeIdColumn]);
+
+				meta.primeIdColumnList.push(keys);
 				
 				// construct the rest
 				_buildMeta(<Definition>structPropToColumnMap, false, null, null);
