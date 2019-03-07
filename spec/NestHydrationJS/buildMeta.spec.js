@@ -15,7 +15,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['aColumnName'],
+					primeIdColumnList: [['aColumnName']],
 					idMap: {
 						aColumnName: {
 							valueList: [
@@ -28,7 +28,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {a: null}
 						}
 					}
 				};
@@ -47,7 +47,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['a'],
+					primeIdColumnList: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -60,7 +60,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {a: null}
 						}
 					}
 				};
@@ -79,7 +79,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['a'],
+					primeIdColumnList: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -92,7 +92,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {a: null}
 						}
 					}
 				};
@@ -111,7 +111,7 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['a'],
+					primeIdColumnList: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -124,7 +124,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: 'a_default'
+							defaults: {a: 'a_default'}
 						}
 					}
 				};
@@ -144,7 +144,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['a'],
+					primeIdColumnList: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -158,7 +158,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {a: null}
 						}
 					}
 				};
@@ -178,7 +178,7 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['a'],
+					primeIdColumnList: [['a']],
 					idMap: {
 						a: {
 							valueList: [
@@ -192,7 +192,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: 'a_default'
+							defaults: {a: 'a_default'}
 						}
 					}
 				};
@@ -215,7 +215,7 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['id'],
+					primeIdColumnList: [['id']],
 					idMap: {
 						c: {
 							valueList: [
@@ -223,12 +223,12 @@ describe('NestHydrationJS', function () {
 							],
 							toOneList: [],
 							toManyPropList: [],
-							containingColumn: 'id',
+							containingColumn: ['id'],
 							ownProp: 'a',
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: {},
-							default: 'c_default'
+							defaults: {c: 'c_default'}
 						},
 						id: {
 							valueList: [
@@ -242,7 +242,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: { id: null }
 						}
 					}
 				};
@@ -262,7 +262,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a'],
+					primeIdColumnList: [['_a']],
 					idMap: {
 						_a: {
 							valueList: [
@@ -276,7 +276,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: { a: null }
 						}
 					}
 				};
@@ -296,7 +296,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_b'],
+					primeIdColumnList: [['_b']],
 					idMap: {
 						_b: {
 							valueList: [
@@ -310,7 +310,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {b: null}
 						}
 					}
 				};
@@ -330,7 +330,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a'],
+					primeIdColumnList: [['_a']],
 					idMap: {
 						_a: {
 							valueList: [
@@ -344,7 +344,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: {a: null}
 						}
 					}
 				};
@@ -364,7 +364,7 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a'],
+					primeIdColumnList: [['_a']],
 					idMap: {
 						_a: {
 							valueList: [
@@ -378,7 +378,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: null,
-							default: 'a_default'
+							defaults: {a: 'a_default'}
 						}
 					}
 				};
@@ -405,7 +405,7 @@ describe('NestHydrationJS', function () {
 			
 			it('should match expected structure', function () {
 				var expected = {
-					primeIdColumnList: ['_a', '_e__f'],
+					primeIdColumnList: [['_a'], ['_e__f']],
 					idMap: {
 						'_a': {
 							valueList: [
@@ -423,7 +423,7 @@ describe('NestHydrationJS', function () {
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: null,
-							default: null
+							defaults: { a: null }
 						},
 						'_c_d': {
 							valueList: [
@@ -431,12 +431,12 @@ describe('NestHydrationJS', function () {
 							],
 							toOneList: [],
 							toManyPropList: [],
-							containingColumn: '_a',
+							containingColumn: ['_a'],
 							ownProp: 'c',
 							isOneOfMany: false,
 							cache: {},
 							containingIdUsage: {},
-							default: null
+							defaults: { d: null }
 						},
 						'_e__f': {
 							valueList: [
@@ -445,12 +445,12 @@ describe('NestHydrationJS', function () {
 							],
 							toOneList: [],
 							toManyPropList: [],
-							containingColumn: '_a',
+							containingColumn: ['_a'],
 							ownProp: 'e',
 							isOneOfMany: true,
 							cache: {},
 							containingIdUsage: {},
-							default: null
+							defaults: { f: null }
 						}
 					}
 				};

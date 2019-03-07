@@ -1,5 +1,7 @@
 'use strict';
 
+import { create } from "domain";
+
 const isArray = require('lodash.isarray');
 const isFunction = require('lodash.isfunction');
 const keys = require('lodash.keys');
@@ -30,16 +32,16 @@ module NestHydrationJS {
 		valueList: Array<MetaValueProps>,
 		toOneList: Array<MetaValueProps>,
 		toManyPropList: Array<string>,
-		containingColumn: string | null,
+		containingColumn: Array<string> | null,
 		ownProp: string | null,
 		isOneOfMany: boolean,
 		cache: Dictionary<any>,
 		containingIdUsage: Dictionary<Dictionary<boolean>> | null,
-		default?: any
+		defaults: Dictionary<string | null>
 	}
 	
 	interface MetaData {
-		primeIdColumnList: Array<string>,
+		primeIdColumnList: Array<Array<string>>,
 		idMap: { [index: string]: MetaColumnData }
 	}
 	
@@ -57,6 +59,10 @@ module NestHydrationJS {
 	interface Data {
 		[index: string]: any,
 		[index: number]: any
+	}
+
+	function createCompositeKey(values: Array<string|number>, separator = ', '): string {
+		return values.join(separator);
 	}
 
 	export class NestHydrationJS {
@@ -133,30 +139,35 @@ module NestHydrationJS {
 			// COMPLETE VALIDATING PARAMS AND BASIC INITIALIZATION
 			
 			let meta = this.buildMeta(<Definition | Definition[]>structPropToColumnMap);
+
 			// BUILD FROM TABLE
 			
 			// defines function that can be called recursively
-			let _nest = (row: Dictionary<any>, idColumn: string) => {
+			let _nest = (row: Dictionary<any>, idColumns: string[]) => {
 				
 				// Obj is the actual object that will end up in the final structure
 				let obj: Data;
 				
-				// Value here is really the id
-				let value: any = row[idColumn];
+				// Get all of the values for each id
+				let values: Array<any> = idColumns.map(column => row[column]);
 				
 				// only really concerned with the meta data for this identity column
-				let objMeta = meta.idMap[idColumn];
+				let objMeta = meta.idMap[createCompositeKey(idColumns)];
 				
-				if (value === null) {
-					if (objMeta.default !== null && typeof objMeta.default !== 'undefined') {
-						value = objMeta.default;
-					} else {
-						return;
+				// If any of the values are null, we'll check and see if we need to set defaults
+				values = values.map((value, idx) => {
+					if (value === null) {
+						if (objMeta.defaults[idColumns[idx]] !== null && typeof objMeta.defaults[idColumns[idx]] !== 'undefined') {
+							return objMeta.defaults[idColumns[idx]];
+						}
 					}
-				}
+					return value;
+				})
+
+				if (values.includes(null)) return;
 				
 				// check if object already exists in cache
-				if (typeof objMeta.cache[value] !== 'undefined') {
+				if (typeof objMeta.cache[createCompositeKey(values)] !== 'undefined') {
 					
 					if (objMeta.containingIdUsage === null) return;
 					
@@ -165,17 +176,17 @@ module NestHydrationJS {
 	
 					// check and see if this has already been linked to the parent,
 					// and if so we don't need to continue
-					let containingId = row[<string>objMeta.containingColumn];
-					if (typeof objMeta.containingIdUsage[value] !== 'undefined'
-						&& typeof objMeta.containingIdUsage[value][containingId] !== 'undefined'
+					let containingIds = (<Array<string>>objMeta.containingColumn).map(column => row[column]);
+					if (typeof objMeta.containingIdUsage[createCompositeKey(values)] !== 'undefined'
+						&& typeof objMeta.containingIdUsage[createCompositeKey(values)][createCompositeKey(containingIds)] !== 'undefined'
 					) return;
 					
 					// not already placed as to-many relation in container
-					obj = objMeta.cache[value];
+					obj = objMeta.cache[createCompositeKey(values)];
 				} else {
 					// don't have an object defined for this yet, create it and set the cache
 					obj = {};
-					objMeta.cache[value] = obj;
+					objMeta.cache[createCompositeKey(values)] = obj;
 					
 					// copy in properties from table data
 					for (let k = 0; k < objMeta.valueList.length; k++) {
@@ -209,7 +220,7 @@ module NestHydrationJS {
 					// initialize null to-one relations and then recursively build them
 					for (let k = 0; k < objMeta.toOneList.length; k++) {
 						obj[objMeta.toOneList[k].prop] = null;
-						_nest(row, objMeta.toOneList[k].column);
+						_nest(row, [objMeta.toOneList[k].column]);
 					}
 				}
 				
@@ -227,8 +238,8 @@ module NestHydrationJS {
 						this.struct = obj;
 					}
 				} else {
-					let containingId = row[objMeta.containingColumn];
-					let container = meta.idMap[objMeta.containingColumn].cache[containingId];
+					let containingIds = objMeta.containingColumn.map(column => row[column]);
+					let container = meta.idMap[createCompositeKey(objMeta.containingColumn)].cache[createCompositeKey(containingIds)];
 	
 					// If a container exists, it must not be a root, and thus there should
 					// be an ownProp set
@@ -245,10 +256,10 @@ module NestHydrationJS {
 					// record the containing id so we don't do this again (return in earlier
 					// part of this method)
 					const containingIdUsage = <Dictionary<Dictionary<boolean>>>objMeta.containingIdUsage
-					if (typeof (containingIdUsage)[value] === 'undefined') {
-						containingIdUsage[value] = {};
+					if (typeof (containingIdUsage)[createCompositeKey(values)] === 'undefined') {
+						containingIdUsage[createCompositeKey(values)] = {};
 					}
-					containingIdUsage[value][containingId] = true;
+					containingIdUsage[createCompositeKey(values)][createCompositeKey(containingIds)] = true;
 				}
 			};
 			
@@ -282,10 +293,10 @@ module NestHydrationJS {
 			let _buildMeta = function(
 				structPropToColumnMap: Definition, 
 				isOneOfMany: boolean, 
-				containingColumn: string | null, 
+				containingColumn: Array<string> | null, 
 				ownProp: string | null) 
 			{
-				var idProp: string | undefined, subIdColumn;
+				// var idProp: string | undefined, subIdColumn;
 	
 				let idProps = [];
 				let idColumns = [];
@@ -298,24 +309,27 @@ module NestHydrationJS {
 				for (let i = 0; i < propList.length; i++) {
 					let prop = propList[i];
 					if ((<DefinitionColumn>structPropToColumnMap[prop]).id === true) {
-						idProp = prop;
+						// idProp = prop;
 						idProps.push(prop);
 					}
 				}
 	
-				if (idProp === undefined) {
-					idProp = propList[0];
+				if (idProps.length === 0) {
+					idProps.push(propList[0]);
 				}
 	
-				// Force we can garuantee that it is a string now, so this will prevent the index error
-				idProp = idProp as string
-				
-				let idColumn = (<DefinitionColumn>structPropToColumnMap[idProp]).column || structPropToColumnMap[idProp] as string;
-				// idColumns = idProps.map(prop => structPropToColumnMap[idProp].column || structPropToColumnMap[idProp]);
+				// Force we can garuantee that it is a string now, so this will prevent the index error				
+				idColumns = idProps.map(prop => (<DefinitionColumn>structPropToColumnMap[prop]).column || structPropToColumnMap[prop]) as Array<string>;
 				
 				if (isOneOfMany) {
-					meta.primeIdColumnList.push(idColumn);
+					meta.primeIdColumnList.push(idColumns);
 				}
+
+				let defaults: Dictionary<string | null> = {}
+
+				idProps.forEach(prop => {
+					defaults[prop] = typeof (<DefinitionColumn>structPropToColumnMap[prop]).default === 'undefined' ? null : (<DefinitionColumn>structPropToColumnMap[prop]).default
+				})
 				
 				let objMeta: MetaColumnData = {
 					valueList: [],
@@ -326,7 +340,7 @@ module NestHydrationJS {
 					isOneOfMany: isOneOfMany === true,
 					cache: {},
 					containingIdUsage: containingColumn === null ? null : {},
-					default: typeof (<DefinitionColumn>structPropToColumnMap[idProp]).default === 'undefined' ? null : (<DefinitionColumn>structPropToColumnMap[idProp]).default
+					defaults: defaults
 				};
 				
 				for (let i = 0; i < propList.length; i++) {
@@ -352,7 +366,7 @@ module NestHydrationJS {
 						// list of objects / to-many relation
 						objMeta.toManyPropList.push(prop);
 						
-						_buildMeta((<Array<Definition>>structPropToColumnMap[prop])[0], true, idColumn, prop);
+						_buildMeta((<Array<Definition>>structPropToColumnMap[prop])[0], true, idColumns, prop);
 					} else if (isPlainObject(structPropToColumnMap[prop])) {
 						// object / to-one relation
 						
@@ -369,13 +383,13 @@ module NestHydrationJS {
 							prop: prop,
 							column: subIdColumn
 						});
-						_buildMeta(<Definition>structPropToColumnMap[prop], false, idColumn, prop);
+						_buildMeta(<Definition>structPropToColumnMap[prop], false, idColumns, prop);
 					} else {
 						throw new Error('invalid structPropToColumnMap format - property \'' + prop + '\' must be either a string, a plain object or an array');
 					}
 				}
 				
-				meta.idMap[idColumn] = objMeta;
+				meta.idMap[createCompositeKey(idColumns)] = objMeta;
 			};
 			
 			// this data structure is populated by the _buildMeta function
@@ -401,7 +415,7 @@ module NestHydrationJS {
 					primeIdColumn = primeIdColumn.column;
 				}
 				
-				meta.primeIdColumnList.push(primeIdColumn);
+				meta.primeIdColumnList.push([primeIdColumn]);
 				
 				// construct the rest
 				_buildMeta(<Definition>structPropToColumnMap, false, null, null);
@@ -471,13 +485,6 @@ module NestHydrationJS {
 							if (isId) {
 								// set the id property in the column map
 								renamedColumn.id = true;
-								// check for any existing id keys that are conflicting
-								let prevKeyList = keys(pointer[prop]);
-								for (let k = 0; k < prevKeyList.length; k++) {
-									if (pointer[prop][prevKeyList[k]].id === true) {
-										return 'invalid - multiple id - ' + pointer[prop][prevKeyList[k]].column + ' and ' + renamedColumn.column + ' conflict';
-									}
-								}
 							}
 							pointer[prop][nav] = j === (navList.length - 1)
 								? renamedColumn // is leaf node, store full column string
