@@ -506,4 +506,4 @@ module NestHydrationJS {
 }
 
 // We have to wrap this in a function for backwards compatablity
-module.exports = function(): NestHydrationJS.NestHydrationJS { return new NestHydrationJS.NestHydrationJS() };
+export = function generate(): NestHydrationJS.NestHydrationJS { return new NestHydrationJS.NestHydrationJS() };
