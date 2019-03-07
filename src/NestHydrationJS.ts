@@ -118,7 +118,7 @@ module NestHydrationJS {
 			
 			if (structPropToColumnMap === null && table.length > 0) {
 				// property mapping not specified, determine it from column names
-				// structPropToColumnMap = this.structPropToColumnMapFromColumnHints(keys(table[0]));
+				structPropToColumnMap = this.structPropToColumnMapFromColumnHints(keys(table[0]));
 			}
 			
 			if (structPropToColumnMap === null) {
@@ -412,86 +412,86 @@ module NestHydrationJS {
 		/* Returns a property mapping data structure based on the names of columns
 		 * in columnList. Used internally by nest when its propertyMapping param
 		 * is not specified.
+		 * 
 		 */
-		// structPropToColumnMapFromColumnHints(columnList, renameMapping) {
-		// 	var propertyMapping, prop, columnType, type, isId, column, pointer, navList, nav, renamedColumn, prevKeyList;
+		structPropToColumnMapFromColumnHints(columnList: Array<string>, renameMapping?: Dictionary<string>) {
 			
-		// 	if (typeof renameMapping === 'undefined') {
-		// 		renameMapping = {};
-		// 	}
+			if (typeof renameMapping === 'undefined') {
+				renameMapping = {};
+			}
 			
-		// 	propertyMapping = {base: null};
+			let propertyMapping: any = {base: null};
 			
-		// 	for (let i = 0; i < columnList.length; i++) {
-		// 		column = columnList[i];
+			for (let i = 0; i < columnList.length; i++) {
+				let column = columnList[i];
 				
-		// 		columnType = column.split('___');
+				let columnType = column.split('___');
 				
-		// 		type = null;
-		// 		isId = false;
-		// 		for (let j = 1; j < columnType.length; j++) {
-		// 			if (columnType[j] === 'ID') {
-		// 				isId = true;
-		// 			} else if (typeof NestHydrationJS.typeHandlers[columnType[j]] !== 'undefined') {
-		// 				type = columnType[j];
-		// 			}
-		// 		}
+				let type = null;
+				let isId = false;
+				for (let j = 1; j < columnType.length; j++) {
+					if (columnType[j] === 'ID') {
+						isId = true;
+					} else if (typeof this.typeHandlers[columnType[j]] !== 'undefined') {
+						type = columnType[j];
+					}
+				}
 				
-		// 		pointer = propertyMapping; // point to base on each new column
-		// 		prop = 'base';
+				let pointer = propertyMapping; // point to base on each new column
+				let prop: string | number = 'base';
 				
-		// 		navList = columnType[0].split('_');
+				let navList = columnType[0].split('_');
 				
-		// 		for (let j = 0; j < navList.length; j++) {
-		// 			nav = navList[j];
+				for (let j = 0; j < navList.length; j++) {
+					let nav = navList[j];
 					
-		// 			if (nav === '') {
-		// 				if (pointer[prop] === null) {
-		// 					pointer[prop] = [null];
-		// 				}
-		// 				pointer = pointer[prop];
-		// 				prop = 0;
-		// 			} else {
-		// 				if (pointer[prop] === null) {
-		// 					pointer[prop] = {};
-		// 				}
-		// 				if (typeof pointer[prop][nav] === 'undefined') {
-		// 					renamedColumn = typeof renameMapping[column] === 'undefined'
-		// 						? column
-		// 						: renameMapping[column]
-		// 					;
-		// 					if (type !== null || isId) {
-		// 						// no longer a simple mapping, has need of the type or id properties
-		// 						renamedColumn = {column: renamedColumn};
-		// 					}
-		// 					if (type !== null) {
-		// 						// detail the type in the column map if type provided
-		// 						renamedColumn.type = type;
-		// 					}
-		// 					if (isId) {
-		// 						// set the id property in the column map
-		// 						renamedColumn.id = true;
-		// 						// check for any existing id keys that are conflicting
-		// 						prevKeyList = keys(pointer[prop]);
-		// 						for (let k = 0; k < prevKeyList.length; k++) {
-		// 							if (pointer[prop][prevKeyList[k]].id === true) {
-		// 								return 'invalid - multiple id - ' + pointer[prop][prevKeyList[k]].column + ' and ' + renamedColumn.column + ' conflict';
-		// 							}
-		// 						}
-		// 					}
-		// 					pointer[prop][nav] = j === (navList.length - 1)
-		// 						? renamedColumn // is leaf node, store full column string
-		// 						: null // iteration will replace with object or array
-		// 					;
-		// 				}
-		// 				pointer = pointer[prop];
-		// 				prop = nav;
-		// 			}
-		// 		}
-		// 	}
+					if (nav === '') {
+						if (pointer[prop] === null) {
+							pointer[prop] = [null];
+						}
+						pointer = pointer[prop];
+						prop = 0;
+					} else {
+						if (pointer[prop] === null) {
+							pointer[prop] = {};
+						}
+						if (typeof pointer[prop][nav] === 'undefined') {
+							let renamedColumn: any = typeof renameMapping[column] === 'undefined'
+								? column
+								: renameMapping[column]
+							;
+							if (type !== null || isId) {
+								// no longer a simple mapping, has need of the type or id properties
+								renamedColumn = {column: renamedColumn};
+							}
+							if (type !== null) {
+								// detail the type in the column map if type provided
+								renamedColumn.type = type;
+							}
+							if (isId) {
+								// set the id property in the column map
+								renamedColumn.id = true;
+								// check for any existing id keys that are conflicting
+								let prevKeyList = keys(pointer[prop]);
+								for (let k = 0; k < prevKeyList.length; k++) {
+									if (pointer[prop][prevKeyList[k]].id === true) {
+										return 'invalid - multiple id - ' + pointer[prop][prevKeyList[k]].column + ' and ' + renamedColumn.column + ' conflict';
+									}
+								}
+							}
+							pointer[prop][nav] = j === (navList.length - 1)
+								? renamedColumn // is leaf node, store full column string
+								: null // iteration will replace with object or array
+							;
+						}
+						pointer = pointer[prop];
+						prop = nav;
+					}
+				}
+			}
 			
-		// 	return propertyMapping.base;
-		// };
+			return propertyMapping.base;
+		};
 		
 		/* Registers a custom type handler */
 		registerType(name: string, handler: TypeHandler) {
