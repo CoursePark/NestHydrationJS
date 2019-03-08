@@ -122,7 +122,7 @@ The following example gives same result as above but a column naming convention 
 
 Nesting is achieved by using a underscore (`_`). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
 
-If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is an id propery of that level of object. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
+If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is an id propery of that level of object. Triple underscore with `ARRAY` (`___ARRAY`) can be used to specify a column that should be treated as an array. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
 
 **Note:** that this means that almost always base level properties will be prefixed with a underscore, as this is actually a *x to many* relation from the variable returned from the `nest` function.
 
