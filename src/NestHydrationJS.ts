@@ -168,7 +168,7 @@ namespace NestHydrationJS {
 					return value;
 				});
 
-				if (vals.includes(null)) { return; }
+				if (vals.indexOf(null) !== -1) { return; }
 
 				// check if object already exists in cache
 				if (typeof objMeta.cache[createCompositeKey(vals)] !== 'undefined') {
