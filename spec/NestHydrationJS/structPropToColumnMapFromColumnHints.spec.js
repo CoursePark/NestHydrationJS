@@ -49,6 +49,23 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+
+		describe('passed single direct property as columnList, array flag', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ARRAY'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ARRAY', array: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
 		
 		describe('passed single direct property as columnList, boolean type', function () {
 			var result;

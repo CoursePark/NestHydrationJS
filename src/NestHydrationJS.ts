@@ -311,10 +311,11 @@ namespace NestHydrationJS {
 				for (let j = 1; j < columnType.length; j++) {
 					if (columnType[j] === 'ID') {
 						idFlagSet = true;
-					} else if (columnType[j] === 'ARRAY') {
-						arrayFlagSet = true;
 					} else if (typeof this.typeHandlers[columnType[j]] !== 'undefined') {
 						type = columnType[j];
+					}
+					if (columnType[j] === 'ARRAY') {
+						arrayFlagSet = true;
 					}
 				}
 
@@ -341,7 +342,7 @@ namespace NestHydrationJS {
 								? column
 								: renameMapping[column]
 							;
-							if (type !== null || idFlagSet) {
+							if (type !== null || idFlagSet || arrayFlagSet) {
 								// no longer a simple mapping, has need of the type or id properties
 								renamedColumn = {column: renamedColumn};
 							}
