@@ -449,7 +449,6 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {a: 'a1', b: 'b1'};
-				console.log("result: ", result)
 				expect(result).toEqual(expected);
 			});
 		});

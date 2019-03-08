@@ -13,3 +13,5 @@
 !/package.json
 !/README.md
 !/src/**
+!/tsconfig.json
+!/tslint.json

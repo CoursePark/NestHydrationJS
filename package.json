@@ -17,7 +17,8 @@
     "coverage": "nyc jasmine",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "test": "jasmine",
-    "lint": "eslint NestHydrateJS.js spec/**/*.js",
+    "lint-specs": "eslint spec/**/*.js",
+    "lint": "tslint -c ./tslint.yaml src/**/*.ts",
     "build": "tsc"
   },
   "repository": {
@@ -33,11 +34,17 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.122",
+    "@types/lodash.isarray": "^4.0.6",
+    "@types/lodash.isfunction": "^3.0.6",
+    "@types/lodash.isplainobject": "^4.0.6",
+    "@types/lodash.keys": "^4.2.6",
+    "@types/lodash.values": "^4.3.6",
     "@types/node": "^11.10.4",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "jasmine": "^3.1.0",
     "nyc": "^11.7.3",
+    "tslint": "^5.13.1",
     "typescript": "^3.3.3333"
   },
   "files": [
