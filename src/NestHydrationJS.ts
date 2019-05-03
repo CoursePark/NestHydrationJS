@@ -17,7 +17,7 @@ namespace NestHydrationJS {
 
 	interface IMetaValueProps {
 		prop: string;
-		column: string;
+		column: string | string[];
 		type?: string | ITypeHandler;
 		default?: any;
 	}
@@ -178,7 +178,7 @@ namespace NestHydrationJS {
 
 					// Add array values if necessary
 					for (const prop of objMeta.arraysList) {
-						const cellValue = this.computeActualCellValue(prop, row[prop.column]);
+						const cellValue = this.computeActualCellValue(prop, row[prop.column as string]);
 						if (isArray(obj[prop.prop])) {
 							obj[prop.prop].push(cellValue);
 						} else {
@@ -205,13 +205,13 @@ namespace NestHydrationJS {
 
 					// copy in properties from table data
 					for (const prop of objMeta.valueList) {
-						const cellValue = this.computeActualCellValue(prop, row[prop.column]);
+						const cellValue = this.computeActualCellValue(prop, row[prop.column as string]);
 						obj[prop.prop] = cellValue;
 					}
 
 					// Add array values
 					for (const prop of objMeta.arraysList) {
-						const cellValue = this.computeActualCellValue(prop, row[prop.column]);
+						const cellValue = this.computeActualCellValue(prop, row[prop.column as string]);
 						if (isArray(obj[prop.prop])) {
 							obj[prop.prop].push(cellValue);
 						} else {
@@ -228,7 +228,7 @@ namespace NestHydrationJS {
 					// initialize null to-one relations and then recursively build them
 					for (const prop of objMeta.toOneList) {
 						obj[prop.prop] = null;
-						recursiveNest(row, [prop.column]);
+						recursiveNest(row, Array.isArray(prop.column) ? prop.column : [prop.column]);
 					}
 				}
 
@@ -494,18 +494,22 @@ namespace NestHydrationJS {
 					} else if (isPlainObject(structPropToColumnMap[prop])) {
 						// object / to-one relation
 
-						let subIdColumn = values(structPropToColumnMap[prop])[0];
-						if (typeof subIdColumn === 'undefined') {
-							throw new Error('invalid structPropToColumnMap format - property \'' + prop + '\' can not be an empty object');
+						const subIdProps = [];
+
+						for (const value of values(structPropToColumnMap[prop])) {
+							if (typeof value === 'object' && value.id === true) {
+								subIdProps.push(value.column)
+							}
 						}
 
-						if (subIdColumn.column) {
-							subIdColumn = subIdColumn.column;
+						// If no columns are flagged as id, then use the first value in the prop list
+						if (subIdProps.length === 0) {
+							subIdProps.push(values(structPropToColumnMap[prop])[0]);
 						}
-
+						
 						objMeta.toOneList.push({
 							prop,
-							column: subIdColumn,
+							column: subIdProps,
 						});
 						recursiveBuildMeta(structPropToColumnMap[prop] as IDefinition, false, idColumns, prop);
 					} else {
