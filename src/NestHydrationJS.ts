@@ -504,7 +504,8 @@ namespace NestHydrationJS {
 
 						// If no columns are flagged as id, then use the first value in the prop list
 						if (subIdProps.length === 0) {
-							subIdProps.push(values(structPropToColumnMap[prop])[0]);
+							const column = values(structPropToColumnMap[prop])[0];
+							subIdProps.push(typeof column === 'object' ? column.column : column);
 						}
 						
 						objMeta.toOneList.push({
