@@ -122,7 +122,7 @@ The following example gives same result as above but a column naming convention 
 
 Nesting is achieved by using a underscore (`_`). A *x to one* relation is defined by a single underscore and a *x to many* relation is defined by preceeding properties of the many object with a 2nd underscore.
 
-If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is an id propery of that level of object. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
+If a column alias ends in a triple underscore (`___`) followed by either `NUMBER` or `BOOLEAN` then the values in those columns will be caste to the respective type unless the value is null.  Triple underscore with `ID` (`___ID`) can be used to specify a column that is an id propery of that level of object. Triple underscore with `ARRAY` (`___ARRAY`) can be used to specify a column that should be treated as an array. If an id is not specified the default is for the first column in that object to be the id property. The id specifier can be used in combination with a type caste, so either `___ID___NUMBER`, or `___NUMBER___ID` would be valid appends to a column name.
 
 **Note:** that this means that almost always base level properties will be prefixed with a underscore, as this is actually a *x to many* relation from the variable returned from the `nest` function.
 
@@ -223,10 +223,10 @@ Result
 Additional Definition Object Capabilities
 =========================================
 
-Ids That Aren't First In Definition Properties
-----------------------------------------------
+Ids That Aren't First In Definition Properties / Composite Ids
+--------------------------------------------------------------
 
-It is possible to specify an id column for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple properties for an object are specified to be ids only the first will be used.
+It is possible to specify the id columns for mapping to objects instead of having it default to the first property of each object specified in the definition. If multiple id properties for an object are specified, they will be treated as a composite key.
 
 ```javascript
 var NestHydrationJS = require('nesthydrationjs')();
@@ -291,6 +291,41 @@ result = NestHydrationJS.nest(table, definition);
 */
 ```
 
+Arrays
+------
+
+You can specify that a column should be joined as an array by setting `array` to true.
+
+### Example
+
+```javascript
+var NestHydrationJS = require('nesthydrationjs')();
+
+var table = [
+	{ id: 1, foo: 'foo' },
+	{ id: 1, foo: 'bar' },
+	{ id: 1, foo: 'baz' },
+	{ id: 2, foo: 'foo' }
+];
+var definition = [{
+	id: 'id',
+	title: {column: 'foo', array: true},
+}];
+result = NestHydrationJS.nest(table, definition);
+/* result would be the following:
+[
+	{
+        id: 1,
+        title: ['foo', 'bar', 'baz']
+    },
+    {
+        id: 2,
+        title: ['foo']
+    }
+]
+*/
+```
+
 Custom Type Definition
 ----------------------
 
@@ -350,6 +385,10 @@ result = NestHydrationJS.nest(table, definition);
 ]
 */
 ```
+
+### Typescript Definitions
+
+Typescript definitions are bundled with this module.
 
 Related Projects
 ----------------

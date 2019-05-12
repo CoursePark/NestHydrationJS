@@ -1,6 +1,6 @@
 'use strict';
 
-var NestHydrationJS = require('../../NestHydrationJS')();
+var NestHydrationJS = require('../../lib/NestHydrationJS')();
 
 describe('NestHydrationJS', function () {
 	describe('nest method', function () {
@@ -256,6 +256,22 @@ describe('NestHydrationJS', function () {
 			});
 		});
 
+		describe('simple mapping, array', function() {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					arr: { column: 'arr', array: true }
+				};
+				var data = {arr: 'arr1'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {arr: ['arr1'] };
+				expect(result).toEqual(expected);
+			});
+		});
+
 		describe('multiple mapping', function () {
 			var result;
 			beforeEach(function () {
@@ -302,6 +318,76 @@ describe('NestHydrationJS', function () {
 
 			it('should match expected structure', function () {
 				var expected = {a: 1, b: null};
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping, multiple arrays', function() {
+			var result;
+			beforeEach(function () {
+				var mapping = {
+					a: 'a',
+					arr: { column: 'arr', array: true },
+					arr2: { column: 'arr2', array :true }
+				};
+				var data = {a: 'value 1', arr: 'arr1', arr2: 'arr2'};
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = {a: 'value 1', arr: ['arr1'], arr2: ['arr2'] };
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array, with array', function() {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: 'a',
+					arr: { column: 'arr', array: true },
+				}];
+				var data = [
+					{a: 'a1', arr: 'arr1'},
+					{a: 'a1', arr: 'arr1-2'},
+					{a: 'a2', arr: 'arr2'},
+					{a: 'a2', arr: 'arr2-2'},
+					{a: 'a3', arr: 'arr3'},
+					{a: 'a3', arr: 'arr3-3'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [ { a: 'a1', arr: [ 'arr1', 'arr1-2' ] },
+				{ a: 'a2', arr: [ 'arr2', 'arr2-2' ] },
+				{ a: 'a3', arr: [ 'arr3', 'arr3-3' ] } ];
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id, with array', function() {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: { column: 'a', id: true },
+					b: { column: 'b', id: true },
+					arr: { column: 'arr', array: true },
+				}];
+				var data = [
+					{a: 'a1', b: 'b1', arr: 'arr1'},
+					{a: 'a1', b: 'b1', arr: 'arr1-2'},
+					{a: 'a2', b: 'b1', arr: 'arr2'},
+					{a: 'a2', b: 'b1', arr: 'arr2-2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [ 
+					{ a: 'a1', b: 'b1', arr: [ 'arr1', 'arr1-2' ] },
+					{ a: 'a2', b: 'b1', arr: [ 'arr2', 'arr2-2' ] } 
+				];
 				expect(result).toEqual(expected);
 			});
 		});
@@ -376,6 +462,61 @@ describe('NestHydrationJS', function () {
 				var expected = [
 					{a: 'value a1', b: 'value b1'},
 					{a: 'value a1', b: 'value b2'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', id: true},
+					b: {column: 'b', id: true}
+				}];
+				var data = [
+					{a: 'a1', b: 'b1'},
+					{a: 'a1', b: 'b2'},
+					{a: 'a2', b: 'b1'},
+					{a: 'a2', b: 'b2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'a1', b: 'b1'},
+					{a: 'a1', b: 'b2'},
+					{a: 'a2', b: 'b1'},
+					{a: 'a2', b: 'b2'}
+				];
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('multiple mapping array with composite id and to-many relation', function () {
+			var result;
+			beforeEach(function () {
+				var mapping = [{
+					a: {column: 'a', id: true},
+					b: {column: 'b', id: true},
+					c: [{
+						id: 'c_id'
+					}]
+				}];
+				var data = [
+					{a: 'a1', b: 'b1', c_id: 'c1'},
+					{a: 'a1', b: 'b1', c_id: 'c2'},
+					{a: 'a2', b: 'b1', c_id: 'c1'},
+					{a: 'a2', b: 'b1', c_id: 'c2'}
+				];
+				result = NestHydrationJS.nest(data, mapping);
+			});
+
+			it('should match expected structure', function () {
+				var expected = [
+					{a: 'a1', b: 'b1', c: [ { id: 'c1'} , { id: 'c2' } ]},
+					{a: 'a2', b: 'b1', c: [ { id: 'c1'} , { id: 'c2' } ]},
 				];
 				expect(result).toEqual(expected);
 			});

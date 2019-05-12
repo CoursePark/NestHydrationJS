@@ -1,6 +1,6 @@
 'use strict';
 
-var NestHydrationJS = require('../../NestHydrationJS')();
+var NestHydrationJS = require('../../lib/NestHydrationJS')();
 
 describe('NestHydrationJS', function () {
 	describe('structPropToColumnMapFromColumnHints method', function () {
@@ -49,6 +49,23 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
+
+		describe('passed single direct property as columnList, array flag', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ARRAY'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ARRAY', array: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
 		
 		describe('passed single direct property as columnList, boolean type', function () {
 			var result;
@@ -83,8 +100,8 @@ describe('NestHydrationJS', function () {
 				expect(result).toEqual(expected);
 			});
 		});
-		
-		describe('passed single direct property as columnList, multiple id columns', function () {
+
+		describe('passed two properties both as id columns', function () {
 			var result;
 			beforeEach(function () {
 				var columnList = [
@@ -95,12 +112,15 @@ describe('NestHydrationJS', function () {
 			});
 			
 			it('should match expected structure', function () {
-				var expected = 'invalid - multiple id - a___ID and b___ID conflict';
+				var expected = {
+					a: {column: 'a___ID', id: true},
+					b: {column: 'b___ID', id: true}
+				};
 				expect(result).toEqual(expected);
 			});
 		});
 		
-		describe('passed single direct property as columnList, id column and typed', function () {
+		describe('passed single direct property as columnList, id column and type', function () {
 			var result;
 			beforeEach(function () {
 				var columnList = [
@@ -112,6 +132,23 @@ describe('NestHydrationJS', function () {
 			it('should match expected structure', function () {
 				var expected = {
 					a: {column: 'a___ID___NUMBER', type: 'NUMBER', id: true}
+				};
+				expect(result).toEqual(expected);
+			});
+		});
+
+		describe('passed single direct property as columnList, id column, type and array', function () {
+			var result;
+			beforeEach(function () {
+				var columnList = [
+					'a___ID___NUMBER___ARRAY'
+				];
+				result = NestHydrationJS.structPropToColumnMapFromColumnHints(columnList);
+			});
+			
+			it('should match expected structure', function () {
+				var expected = {
+					a: {column: 'a___ID___NUMBER___ARRAY', type: 'NUMBER', id: true, array: true}
 				};
 				expect(result).toEqual(expected);
 			});
