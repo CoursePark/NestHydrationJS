@@ -4,7 +4,6 @@ branches:
         - master
         - qc
 node_js:
-    - "0.12.5"
     - "4"
     - "6"
     - "8"
