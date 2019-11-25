@@ -1,6 +1,6 @@
 {
   "name": "nesthydrationjs",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "description": "Provides nested objects from tabular data.",
   "keywords": [
     "Hydration",
@@ -16,7 +16,7 @@
     "coverage": "nyc jasmine",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "test": "jasmine",
-    "lint": "eslint NestHydrateJS.js spec/**/*.js"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -30,10 +30,10 @@
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
-    "coveralls": "^3.0.1",
-    "eslint": "^4.19.1",
+    "coveralls": "^3.0.8",
+    "eslint": "^6.7.1",
     "jasmine": "^3.1.0",
-    "nyc": "^11.7.3"
+    "nyc": "^14.1.1"
   },
   "author": "Bluedrop Peformance Learning"
 }
