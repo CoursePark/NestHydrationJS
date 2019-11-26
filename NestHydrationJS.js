@@ -1,7 +1,7 @@
 'use strict';
 
 function nestHydrationJS() {
-	var NestHydrationJS, _;
+	var NestHydrationJS;
 
 	var isArray = require('lodash.isarray');
 	var isFunction = require('lodash.isfunction');

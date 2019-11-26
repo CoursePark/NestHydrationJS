@@ -4,11 +4,9 @@ branches:
         - master
         - qc
 node_js:
-    - "0.12.5"
-    - "4"
-    - "6"
     - "8"
-    - "node"
+    - "10"
+    - "12"
 script:
     - npm test
 after_script:
