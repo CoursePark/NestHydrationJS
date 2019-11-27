@@ -5,7 +5,7 @@
 [![Dependency Status](https://david-dm.org/CoursePark/NestHydrationJS.svg)](https://david-dm.org/CoursePark/NestHydrationJS)
 [![NPM version](https://img.shields.io/npm/v/nesthydrationjs.svg)](https://www.npmjs.com/package/nesthydrationjs)
 
-[Change Log](CHANGELOG.md)
+[Change Log](CHANGELOG.md), [ISC](https://www.isc.org/licenses/) License
 
 Converts tabular data into a nested object/array structure based on a definition object or specially named columns.
 
